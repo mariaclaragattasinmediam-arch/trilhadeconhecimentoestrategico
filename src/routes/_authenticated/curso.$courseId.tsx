@@ -55,7 +55,7 @@ function CursoPage() {
     <>
       <PageHeader
         title={course.data?.titulo ?? "Curso"}
-        description={course.data?.descricao ?? undefined}
+        description={course.data?.descricao ?? ""}
       />
 
       <div className="surface p-6">
