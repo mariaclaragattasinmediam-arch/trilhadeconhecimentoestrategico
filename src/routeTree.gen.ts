@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMateriaisRouteImport } from './routes/_authenticated/materiais'
 import { Route as AuthenticatedMinhaTrilhaRouteImport } from './routes/_authenticated/minha-trilha'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedAulaLessonIdRouteImport } from './routes/_authenticated/aula.$lessonId'
 import { Route as AuthenticatedCursoCourseIdRouteImport } from './routes/_authenticated/curso.$courseId'
 
@@ -42,12 +44,22 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMateriaisRoute = AuthenticatedMateriaisRouteImport.update({
+  id: '/materiais',
+  path: '/materiais',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMinhaTrilhaRoute =
   AuthenticatedMinhaTrilhaRouteImport.update({
     id: '/minha-trilha',
     path: '/minha-trilha',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAulaLessonIdRoute =
   AuthenticatedAulaLessonIdRouteImport.update({
     id: '/aula/$lessonId',
@@ -66,7 +78,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cursos': typeof AuthenticatedCursosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/materiais': typeof AuthenticatedMateriaisRoute
   '/minha-trilha': typeof AuthenticatedMinhaTrilhaRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
 }
@@ -75,7 +89,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cursos': typeof AuthenticatedCursosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/materiais': typeof AuthenticatedMateriaisRoute
   '/minha-trilha': typeof AuthenticatedMinhaTrilhaRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
 }
@@ -86,7 +102,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/cursos': typeof AuthenticatedCursosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/materiais': typeof AuthenticatedMateriaisRoute
   '/_authenticated/minha-trilha': typeof AuthenticatedMinhaTrilhaRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
   '/_authenticated/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
 }
@@ -97,7 +115,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cursos'
     | '/dashboard'
+    | '/materiais'
     | '/minha-trilha'
+    | '/perfil'
     | '/aula/$lessonId'
     | '/curso/$courseId'
   fileRoutesByTo: FileRoutesByTo
@@ -106,7 +126,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cursos'
     | '/dashboard'
+    | '/materiais'
     | '/minha-trilha'
+    | '/perfil'
     | '/aula/$lessonId'
     | '/curso/$courseId'
   id:
@@ -116,7 +138,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/cursos'
     | '/_authenticated/dashboard'
+    | '/_authenticated/materiais'
     | '/_authenticated/minha-trilha'
+    | '/_authenticated/perfil'
     | '/_authenticated/aula/$lessonId'
     | '/_authenticated/curso/$courseId'
   fileRoutesById: FileRoutesById
@@ -164,11 +188,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/materiais': {
+      id: '/_authenticated/materiais'
+      path: '/materiais'
+      fullPath: '/materiais'
+      preLoaderRoute: typeof AuthenticatedMateriaisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/minha-trilha': {
       id: '/_authenticated/minha-trilha'
       path: '/minha-trilha'
       fullPath: '/minha-trilha'
       preLoaderRoute: typeof AuthenticatedMinhaTrilhaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/aula/$lessonId': {
@@ -191,7 +229,9 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMateriaisRoute: typeof AuthenticatedMateriaisRoute
   AuthenticatedMinhaTrilhaRoute: typeof AuthenticatedMinhaTrilhaRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedAulaLessonIdRoute: typeof AuthenticatedAulaLessonIdRoute
   AuthenticatedCursoCourseIdRoute: typeof AuthenticatedCursoCourseIdRoute
 }
@@ -199,7 +239,9 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCursosRoute: AuthenticatedCursosRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMateriaisRoute: AuthenticatedMateriaisRoute,
   AuthenticatedMinhaTrilhaRoute: AuthenticatedMinhaTrilhaRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedAulaLessonIdRoute: AuthenticatedAulaLessonIdRoute,
   AuthenticatedCursoCourseIdRoute: AuthenticatedCursoCourseIdRoute,
 }

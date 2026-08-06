@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 });
 
 function PerfilPage() {
-  const { profile, isAdmin, refresh } = useAuth();
+  const { profile, isAdmin, refreshProfile } = useAuth();
   const [nome, setNome] = useState(profile?.nome ?? "");
   const [busy, setBusy] = useState(false);
 
@@ -36,7 +36,7 @@ function PerfilPage() {
       toast.error("Erro ao salvar", { description: error.message });
       return;
     }
-    await refresh();
+    await refreshProfile();
     toast.success("Perfil atualizado");
   };
 
