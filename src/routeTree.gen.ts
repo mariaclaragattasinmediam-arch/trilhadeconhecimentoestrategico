@@ -10,33 +10,222 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMateriaisRouteImport } from './routes/_authenticated/materiais'
+import { Route as AuthenticatedMinhaTrilhaRouteImport } from './routes/_authenticated/minha-trilha'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedAdminArquivosRouteImport } from './routes/_authenticated/admin/arquivos'
+import { Route as AuthenticatedAdminAulasRouteImport } from './routes/_authenticated/admin/aulas'
+import { Route as AuthenticatedAdminCursosRouteImport } from './routes/_authenticated/admin/cursos'
+import { Route as AuthenticatedAdminModulosRouteImport } from './routes/_authenticated/admin/modulos'
+import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin/usuarios'
+import { Route as AuthenticatedAulaLessonIdRouteImport } from './routes/_authenticated/aula.$lessonId'
+import { Route as AuthenticatedCursoCourseIdRouteImport } from './routes/_authenticated/curso.$courseId'
+import { Route as AuthenticatedAdminAulasLessonIdRouteImport } from './routes/_authenticated/admin/aulas.$lessonId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCursosRoute = AuthenticatedCursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMateriaisRoute = AuthenticatedMateriaisRouteImport.update({
+  id: '/materiais',
+  path: '/materiais',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMinhaTrilhaRoute =
+  AuthenticatedMinhaTrilhaRouteImport.update({
+    id: '/minha-trilha',
+    path: '/minha-trilha',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminArquivosRoute =
+  AuthenticatedAdminArquivosRouteImport.update({
+    id: '/admin/arquivos',
+    path: '/admin/arquivos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminAulasRoute = AuthenticatedAdminAulasRouteImport.update({
+  id: '/admin/aulas',
+  path: '/admin/aulas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminCursosRoute =
+  AuthenticatedAdminCursosRouteImport.update({
+    id: '/admin/cursos',
+    path: '/admin/cursos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminModulosRoute =
+  AuthenticatedAdminModulosRouteImport.update({
+    id: '/admin/modulos',
+    path: '/admin/modulos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminUsuariosRoute =
+  AuthenticatedAdminUsuariosRouteImport.update({
+    id: '/admin/usuarios',
+    path: '/admin/usuarios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAulaLessonIdRoute =
+  AuthenticatedAulaLessonIdRouteImport.update({
+    id: '/aula/$lessonId',
+    path: '/aula/$lessonId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCursoCourseIdRoute =
+  AuthenticatedCursoCourseIdRouteImport.update({
+    id: '/curso/$courseId',
+    path: '/curso/$courseId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminAulasLessonIdRoute =
+  AuthenticatedAdminAulasLessonIdRouteImport.update({
+    id: '/$lessonId',
+    path: '/$lessonId',
+    getParentRoute: () => AuthenticatedAdminAulasRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/cursos': typeof AuthenticatedCursosRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/materiais': typeof AuthenticatedMateriaisRoute
+  '/minha-trilha': typeof AuthenticatedMinhaTrilhaRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/admin/arquivos': typeof AuthenticatedAdminArquivosRoute
+  '/admin/aulas': typeof AuthenticatedAdminAulasRouteWithChildren
+  '/admin/cursos': typeof AuthenticatedAdminCursosRoute
+  '/admin/modulos': typeof AuthenticatedAdminModulosRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
+  '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
+  '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/cursos': typeof AuthenticatedCursosRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/materiais': typeof AuthenticatedMateriaisRoute
+  '/minha-trilha': typeof AuthenticatedMinhaTrilhaRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/admin/arquivos': typeof AuthenticatedAdminArquivosRoute
+  '/admin/aulas': typeof AuthenticatedAdminAulasRouteWithChildren
+  '/admin/cursos': typeof AuthenticatedAdminCursosRoute
+  '/admin/modulos': typeof AuthenticatedAdminModulosRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
+  '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
+  '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/cursos': typeof AuthenticatedCursosRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/materiais': typeof AuthenticatedMateriaisRoute
+  '/_authenticated/minha-trilha': typeof AuthenticatedMinhaTrilhaRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/_authenticated/admin/arquivos': typeof AuthenticatedAdminArquivosRoute
+  '/_authenticated/admin/aulas': typeof AuthenticatedAdminAulasRouteWithChildren
+  '/_authenticated/admin/cursos': typeof AuthenticatedAdminCursosRoute
+  '/_authenticated/admin/modulos': typeof AuthenticatedAdminModulosRoute
+  '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
+  '/_authenticated/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
+  '/_authenticated/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/cursos'
+    | '/dashboard'
+    | '/materiais'
+    | '/minha-trilha'
+    | '/perfil'
+    | '/admin/arquivos'
+    | '/admin/aulas'
+    | '/admin/cursos'
+    | '/admin/modulos'
+    | '/admin/usuarios'
+    | '/aula/$lessonId'
+    | '/curso/$courseId'
+    | '/admin/aulas/$lessonId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/cursos'
+    | '/dashboard'
+    | '/materiais'
+    | '/minha-trilha'
+    | '/perfil'
+    | '/admin/arquivos'
+    | '/admin/aulas'
+    | '/admin/cursos'
+    | '/admin/modulos'
+    | '/admin/usuarios'
+    | '/aula/$lessonId'
+    | '/curso/$courseId'
+    | '/admin/aulas/$lessonId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/cursos'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/materiais'
+    | '/_authenticated/minha-trilha'
+    | '/_authenticated/perfil'
+    | '/_authenticated/admin/arquivos'
+    | '/_authenticated/admin/aulas'
+    | '/_authenticated/admin/cursos'
+    | '/_authenticated/admin/modulos'
+    | '/_authenticated/admin/usuarios'
+    | '/_authenticated/aula/$lessonId'
+    | '/_authenticated/curso/$courseId'
+    | '/_authenticated/admin/aulas/$lessonId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +237,166 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/cursos': {
+      id: '/_authenticated/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof AuthenticatedCursosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/materiais': {
+      id: '/_authenticated/materiais'
+      path: '/materiais'
+      fullPath: '/materiais'
+      preLoaderRoute: typeof AuthenticatedMateriaisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/minha-trilha': {
+      id: '/_authenticated/minha-trilha'
+      path: '/minha-trilha'
+      fullPath: '/minha-trilha'
+      preLoaderRoute: typeof AuthenticatedMinhaTrilhaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/arquivos': {
+      id: '/_authenticated/admin/arquivos'
+      path: '/admin/arquivos'
+      fullPath: '/admin/arquivos'
+      preLoaderRoute: typeof AuthenticatedAdminArquivosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/aulas': {
+      id: '/_authenticated/admin/aulas'
+      path: '/admin/aulas'
+      fullPath: '/admin/aulas'
+      preLoaderRoute: typeof AuthenticatedAdminAulasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/cursos': {
+      id: '/_authenticated/admin/cursos'
+      path: '/admin/cursos'
+      fullPath: '/admin/cursos'
+      preLoaderRoute: typeof AuthenticatedAdminCursosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/modulos': {
+      id: '/_authenticated/admin/modulos'
+      path: '/admin/modulos'
+      fullPath: '/admin/modulos'
+      preLoaderRoute: typeof AuthenticatedAdminModulosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/usuarios': {
+      id: '/_authenticated/admin/usuarios'
+      path: '/admin/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/aula/$lessonId': {
+      id: '/_authenticated/aula/$lessonId'
+      path: '/aula/$lessonId'
+      fullPath: '/aula/$lessonId'
+      preLoaderRoute: typeof AuthenticatedAulaLessonIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/curso/$courseId': {
+      id: '/_authenticated/curso/$courseId'
+      path: '/curso/$courseId'
+      fullPath: '/curso/$courseId'
+      preLoaderRoute: typeof AuthenticatedCursoCourseIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/aulas/$lessonId': {
+      id: '/_authenticated/admin/aulas/$lessonId'
+      path: '/$lessonId'
+      fullPath: '/admin/aulas/$lessonId'
+      preLoaderRoute: typeof AuthenticatedAdminAulasLessonIdRouteImport
+      parentRoute: typeof AuthenticatedAdminAulasRoute
+    }
   }
 }
 
+interface AuthenticatedAdminAulasRouteChildren {
+  AuthenticatedAdminAulasLessonIdRoute: typeof AuthenticatedAdminAulasLessonIdRoute
+}
+
+const AuthenticatedAdminAulasRouteChildren: AuthenticatedAdminAulasRouteChildren =
+  {
+    AuthenticatedAdminAulasLessonIdRoute: AuthenticatedAdminAulasLessonIdRoute,
+  }
+
+const AuthenticatedAdminAulasRouteWithChildren =
+  AuthenticatedAdminAulasRoute._addFileChildren(
+    AuthenticatedAdminAulasRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMateriaisRoute: typeof AuthenticatedMateriaisRoute
+  AuthenticatedMinhaTrilhaRoute: typeof AuthenticatedMinhaTrilhaRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
+  AuthenticatedAdminArquivosRoute: typeof AuthenticatedAdminArquivosRoute
+  AuthenticatedAdminAulasRoute: typeof AuthenticatedAdminAulasRouteWithChildren
+  AuthenticatedAdminCursosRoute: typeof AuthenticatedAdminCursosRoute
+  AuthenticatedAdminModulosRoute: typeof AuthenticatedAdminModulosRoute
+  AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedAulaLessonIdRoute: typeof AuthenticatedAulaLessonIdRoute
+  AuthenticatedCursoCourseIdRoute: typeof AuthenticatedCursoCourseIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCursosRoute: AuthenticatedCursosRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMateriaisRoute: AuthenticatedMateriaisRoute,
+  AuthenticatedMinhaTrilhaRoute: AuthenticatedMinhaTrilhaRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
+  AuthenticatedAdminArquivosRoute: AuthenticatedAdminArquivosRoute,
+  AuthenticatedAdminAulasRoute: AuthenticatedAdminAulasRouteWithChildren,
+  AuthenticatedAdminCursosRoute: AuthenticatedAdminCursosRoute,
+  AuthenticatedAdminModulosRoute: AuthenticatedAdminModulosRoute,
+  AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedAulaLessonIdRoute: AuthenticatedAulaLessonIdRoute,
+  AuthenticatedCursoCourseIdRoute: AuthenticatedCursoCourseIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
