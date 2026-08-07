@@ -1,8 +1,22 @@
+import DOMPurify from "dompurify";
 import { Download, ExternalLink, FileText, ImageOff, Loader2 } from "lucide-react";
 import type { BlockContent, LessonBlock } from "@/lib/api";
 import { useSignedUrl } from "@/hooks/use-signed-url";
 import { youtubeEmbedUrl } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
+
+const destaqueStyles: Record<string, string> = {
+  info: "border-primary/40 bg-primary/10",
+  atencao: "border-destructive/40 bg-destructive/10",
+  dica: "border-accent/40 bg-accent/10",
+  importante: "border-foreground/30 bg-muted",
+};
+
+function SafeHtml({ html, className }: { html: string; className?: string }) {
+  const clean = typeof window === "undefined" ? "" : DOMPurify.sanitize(html);
+  return <div className={className} dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+
 
 function SignedImage({ content }: { content: BlockContent }) {
   const { data, isLoading, isError } = useSignedUrl(content.path);
