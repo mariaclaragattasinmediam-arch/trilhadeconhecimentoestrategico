@@ -210,10 +210,16 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
           rel="noreferrer"
           className="surface flex items-center justify-between gap-3 px-5 py-4 transition-shadow hover:shadow-[var(--shadow-lift)]"
         >
-          <span className="text-sm font-medium">{c.rotulo || c.url}</span>
-          <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          <span>
+            <span className="block text-sm font-medium">{c.rotulo || c.url}</span>
+            {c.descricao ? (
+              <span className="block text-xs text-muted-foreground">{c.descricao}</span>
+            ) : null}
+          </span>
+          <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
         </a>
       );
+
     default:
       return null;
   }
