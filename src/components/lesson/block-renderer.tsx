@@ -173,10 +173,14 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
       );
     case "destaque":
       return (
-        <div className="rounded-2xl border border-accent/40 bg-accent/10 px-5 py-4 text-[15px]">
-          {c.texto}
+        <div
+          className={`rounded-2xl border px-5 py-4 text-[15px] ${destaqueStyles[c.variante ?? "dica"] ?? destaqueStyles['dica']}`}
+        >
+          {c.titulo ? <p className="mb-1 font-semibold">{c.titulo}</p> : null}
+          <p className="whitespace-pre-line">{c.texto}</p>
         </div>
       );
+
     case "imagem":
       return <SignedImage content={c} />;
     case "pdf":
