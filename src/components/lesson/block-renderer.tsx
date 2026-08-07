@@ -18,8 +18,17 @@ function SafeHtml({ html, className }: { html: string; className?: string }) {
 }
 
 
+function useResolvedUrl(content: BlockContent) {
+  const signed = useSignedUrl(content.path);
+  if (!content.path) {
+    return { data: content.url ?? "", isLoading: false, isError: !content.url };
+  }
+  return signed;
+}
+
 function SignedImage({ content }: { content: BlockContent }) {
-  const { data, isLoading, isError } = useSignedUrl(content.path);
+  const { data, isLoading, isError } = useResolvedUrl(content);
+
   if (isLoading)
     return (
       <div className="flex h-56 items-center justify-center rounded-2xl bg-muted">
