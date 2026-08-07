@@ -339,6 +339,7 @@ function AdminCursos() {
       )}
 
       <CourseDialog
+        key={`${editando?.id ?? "novo"}-${String(dialogOpen)}`}
         open={dialogOpen}
         onOpenChange={(v) => {
           setDialogOpen(v);
