@@ -210,7 +210,7 @@ function Fields({
         <div className="space-y-2">
           <Select
             value={content.variante ?? "dica"}
-            onValueChange={(v) => onChange({ ...content, variante: v as BlockContent["variante"] })}
+            onValueChange={(v) => onChange({ ...content, variante: v as NonNullable<BlockContent["variante"]> })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Estilo" />
