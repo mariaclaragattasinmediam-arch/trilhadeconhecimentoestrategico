@@ -21,6 +21,7 @@ export type Database = {
           descricao: string
           id: string
           publicado: boolean
+          status: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           descricao?: string
           id?: string
           publicado?: boolean
+          status?: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at?: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           descricao?: string
           id?: string
           publicado?: boolean
+          status?: Database["public"]["Enums"]["content_status"]
           titulo?: string
           updated_at?: string
         }
@@ -130,6 +133,7 @@ export type Database = {
           id: string
           module_id: string
           ordem: number
+          status: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at: string
         }
@@ -139,6 +143,7 @@ export type Database = {
           id?: string
           module_id: string
           ordem?: number
+          status?: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at?: string
         }
@@ -148,6 +153,7 @@ export type Database = {
           id?: string
           module_id?: string
           ordem?: number
+          status?: Database["public"]["Enums"]["content_status"]
           titulo?: string
           updated_at?: string
         }
@@ -168,6 +174,7 @@ export type Database = {
           descricao: string
           id: string
           ordem: number
+          status: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at: string
         }
@@ -177,6 +184,7 @@ export type Database = {
           descricao?: string
           id?: string
           ordem?: number
+          status?: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at?: string
         }
@@ -186,6 +194,7 @@ export type Database = {
           descricao?: string
           id?: string
           ordem?: number
+          status?: Database["public"]["Enums"]["content_status"]
           titulo?: string
           updated_at?: string
         }
@@ -298,6 +307,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "aluno"
+      content_status: "rascunho" | "publicado" | "arquivado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -426,6 +436,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "aluno"],
+      content_status: ["rascunho", "publicado", "arquivado"],
     },
   },
 } as const

@@ -1,11 +1,34 @@
+import DOMPurify from "dompurify";
 import { Download, ExternalLink, FileText, ImageOff, Loader2 } from "lucide-react";
 import type { BlockContent, LessonBlock } from "@/lib/api";
 import { useSignedUrl } from "@/hooks/use-signed-url";
 import { youtubeEmbedUrl } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 
+const destaqueStyles: Record<string, string> = {
+  info: "border-primary/40 bg-primary/10",
+  atencao: "border-destructive/40 bg-destructive/10",
+  dica: "border-accent/40 bg-accent/10",
+  importante: "border-foreground/30 bg-muted",
+};
+
+function SafeHtml({ html, className }: { html: string; className?: string }) {
+  const clean = typeof window === "undefined" ? "" : DOMPurify.sanitize(html);
+  return <div className={className} dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+
+
+function useResolvedUrl(content: BlockContent) {
+  const signed = useSignedUrl(content.path);
+  if (!content.path) {
+    return { data: content.url ?? "", isLoading: false, isError: !content.url };
+  }
+  return signed;
+}
+
 function SignedImage({ content }: { content: BlockContent }) {
-  const { data, isLoading, isError } = useSignedUrl(content.path);
+  const { data, isLoading, isError } = useResolvedUrl(content);
+
   if (isLoading)
     return (
       <div className="flex h-56 items-center justify-center rounded-2xl bg-muted">
@@ -37,7 +60,7 @@ function SignedImage({ content }: { content: BlockContent }) {
 }
 
 function SignedPdf({ content }: { content: BlockContent }) {
-  const { data, isLoading } = useSignedUrl(content.path);
+  const { data, isLoading } = useResolvedUrl(content);
   return (
     <div className="surface overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
@@ -67,7 +90,7 @@ function SignedPdf({ content }: { content: BlockContent }) {
 }
 
 function SignedVideo({ content }: { content: BlockContent }) {
-  const { data, isLoading } = useSignedUrl(content.path);
+  const { data, isLoading } = useResolvedUrl(content);
   if (isLoading)
     return (
       <div className="flex h-64 items-center justify-center rounded-2xl bg-muted">
@@ -94,6 +117,14 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
     case "subtitulo":
       return <h3 className="text-lg font-semibold text-primary">{c.texto}</h3>;
     case "texto":
+      if (c.html) {
+        return (
+          <SafeHtml
+            html={c.html}
+            className="prose-lesson space-y-3 text-[15px] [&_a]:text-primary [&_a]:underline [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5"
+          />
+        );
+      }
       return (
         <div className="prose-lesson space-y-4 text-[15px]">
           {(c.texto ?? "").split(/\n{2,}/).map((par, i) => (
@@ -103,10 +134,25 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
           ))}
         </div>
       );
-    case "lista":
+    case "lista": {
+      const itens = (c.itens ?? []).filter((i) => i.trim().length > 0);
+      if (c.ordenada) {
+        return (
+          <ol className="space-y-2 pl-1">
+            {itens.map((item, i) => (
+              <li key={i} className="flex gap-3 text-[15px]">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent-foreground">
+                  {i + 1}
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ol>
+        );
+      }
       return (
         <ul className="space-y-2">
-          {(c.itens ?? []).map((item, i) => (
+          {itens.map((item, i) => (
             <li key={i} className="flex gap-3 text-[15px]">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
               <span>{item}</span>
@@ -114,6 +160,8 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
           ))}
         </ul>
       );
+    }
+
     case "citacao":
       return (
         <blockquote className="border-l-4 border-accent bg-muted/60 px-5 py-4 text-[15px] italic">
@@ -125,10 +173,14 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
       );
     case "destaque":
       return (
-        <div className="rounded-2xl border border-accent/40 bg-accent/10 px-5 py-4 text-[15px]">
-          {c.texto}
+        <div
+          className={`rounded-2xl border px-5 py-4 text-[15px] ${destaqueStyles[c.variante ?? "dica"] ?? destaqueStyles['dica']}`}
+        >
+          {c.titulo ? <p className="mb-1 font-semibold">{c.titulo}</p> : null}
+          <p className="whitespace-pre-line">{c.texto}</p>
         </div>
       );
+
     case "imagem":
       return <SignedImage content={c} />;
     case "pdf":
@@ -158,10 +210,16 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
           rel="noreferrer"
           className="surface flex items-center justify-between gap-3 px-5 py-4 transition-shadow hover:shadow-[var(--shadow-lift)]"
         >
-          <span className="text-sm font-medium">{c.rotulo || c.url}</span>
-          <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          <span>
+            <span className="block text-sm font-medium">{c.rotulo || c.url}</span>
+            {c.descricao ? (
+              <span className="block text-xs text-muted-foreground">{c.descricao}</span>
+            ) : null}
+          </span>
+          <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
         </a>
       );
+
     default:
       return null;
   }
