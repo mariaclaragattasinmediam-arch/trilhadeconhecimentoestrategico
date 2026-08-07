@@ -96,11 +96,14 @@ export async function createCourse(input: CourseInput) {
 }
 
 export async function updateCourse(id: string, input: Partial<CourseInput>) {
-  const patch: Record<string, unknown> = { ...input };
-  if (input.status) patch['publicado'] = input.status === "publicado";
+  const patch = {
+    ...input,
+    ...(input.status ? { publicado: input.status === "publicado" } : {}),
+  };
   const res = await supabase.from("courses").update(patch).eq("id", id).select("*").single();
   return check<Course>(res as never);
 }
+
 
 export async function deleteCourse(id: string) {
   const { error } = await supabase.from("courses").delete().eq("id", id);
