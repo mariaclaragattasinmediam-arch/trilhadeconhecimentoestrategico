@@ -117,6 +117,14 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
     case "subtitulo":
       return <h3 className="text-lg font-semibold text-primary">{c.texto}</h3>;
     case "texto":
+      if (c.html) {
+        return (
+          <SafeHtml
+            html={c.html}
+            className="prose-lesson space-y-3 text-[15px] [&_a]:text-primary [&_a]:underline [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5"
+          />
+        );
+      }
       return (
         <div className="prose-lesson space-y-4 text-[15px]">
           {(c.texto ?? "").split(/\n{2,}/).map((par, i) => (
@@ -126,10 +134,25 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
           ))}
         </div>
       );
-    case "lista":
+    case "lista": {
+      const itens = (c.itens ?? []).filter((i) => i.trim().length > 0);
+      if (c.ordenada) {
+        return (
+          <ol className="space-y-2 pl-1">
+            {itens.map((item, i) => (
+              <li key={i} className="flex gap-3 text-[15px]">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent-foreground">
+                  {i + 1}
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ol>
+        );
+      }
       return (
         <ul className="space-y-2">
-          {(c.itens ?? []).map((item, i) => (
+          {itens.map((item, i) => (
             <li key={i} className="flex gap-3 text-[15px]">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
               <span>{item}</span>
@@ -137,6 +160,8 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
           ))}
         </ul>
       );
+    }
+
     case "citacao":
       return (
         <blockquote className="border-l-4 border-accent bg-muted/60 px-5 py-4 text-[15px] italic">
