@@ -60,7 +60,7 @@ function SignedImage({ content }: { content: BlockContent }) {
 }
 
 function SignedPdf({ content }: { content: BlockContent }) {
-  const { data, isLoading } = useSignedUrl(content.path);
+  const { data, isLoading } = useResolvedUrl(content);
   return (
     <div className="surface overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
@@ -90,7 +90,7 @@ function SignedPdf({ content }: { content: BlockContent }) {
 }
 
 function SignedVideo({ content }: { content: BlockContent }) {
-  const { data, isLoading } = useSignedUrl(content.path);
+  const { data, isLoading } = useResolvedUrl(content);
   if (isLoading)
     return (
       <div className="flex h-64 items-center justify-center rounded-2xl bg-muted">
