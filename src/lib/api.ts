@@ -13,11 +13,18 @@ export type BlockType =
   | "citacao"
   | "destaque";
 
+export type ContentStatus = "rascunho" | "publicado" | "arquivado";
+
 export interface BlockContent {
   texto?: string;
+  html?: string;
+  titulo?: string;
   itens?: string[];
+  ordenada?: boolean;
+  variante?: "info" | "atencao" | "dica" | "importante";
   url?: string;
   rotulo?: string;
+  descricao?: string;
   legenda?: string;
   path?: string;
   nome?: string;
@@ -30,6 +37,7 @@ export interface Course {
   descricao: string;
   capa_url: string | null;
   publicado: boolean;
+  status: ContentStatus;
   created_at: string;
 }
 
@@ -38,6 +46,7 @@ export interface Module {
   course_id: string;
   titulo: string;
   descricao: string;
+  status: ContentStatus;
   ordem: number;
 }
 
@@ -46,8 +55,10 @@ export interface Lesson {
   module_id: string;
   titulo: string;
   descricao: string;
+  status: ContentStatus;
   ordem: number;
 }
+
 
 export interface LessonBlock {
   id: string;
