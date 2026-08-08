@@ -149,6 +149,13 @@ function AdminModulo() {
   });
 
   const modulo = useQuery({ queryKey: cmsKeys.module(moduleId), queryFn: () => getModule(moduleId) });
+  const courseId = modulo.data?.course_id;
+  const course = useQuery({
+    queryKey: cmsKeys.course(courseId ?? "none"),
+    queryFn: () => getCourse(courseId as string),
+    enabled: Boolean(courseId),
+  });
+
   const lessons = useQuery({
     queryKey: cmsKeys.lessons(moduleId),
     queryFn: () => listLessons(moduleId),
