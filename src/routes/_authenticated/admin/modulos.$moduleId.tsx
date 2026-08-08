@@ -21,6 +21,7 @@ import {
   createLesson,
   deleteLesson,
   duplicateLesson,
+  getCourse,
   getModule,
   listBlockCounts,
   listLessons,
