@@ -30,6 +30,7 @@ import {
   type ModuleInput,
 } from "@/lib/cms";
 import { move, useDragSort } from "@/components/admin/sortable";
+import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
@@ -257,6 +258,8 @@ function AdminCurso() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumbs items={[{ label: "Cursos", to: "/admin/cursos" }, { label: course.data.titulo }]} />
+
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
         <Link to="/admin/cursos">
           <ArrowLeft className="h-4 w-4" /> Cursos
@@ -264,6 +267,7 @@ function AdminCurso() {
       </Button>
 
       <PageHeader title={course.data.titulo} description="Dados do curso e organização de módulos." />
+
 
       <section className="surface space-y-4 p-5">
         <div className="grid gap-4 sm:grid-cols-2">

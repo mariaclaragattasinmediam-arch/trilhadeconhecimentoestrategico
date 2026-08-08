@@ -21,6 +21,7 @@ import {
   createLesson,
   deleteLesson,
   duplicateLesson,
+  getCourse,
   getModule,
   listBlockCounts,
   listLessons,
@@ -30,6 +31,7 @@ import {
   type LessonInput,
 } from "@/lib/cms";
 import { move, useDragSort } from "@/components/admin/sortable";
+import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
@@ -148,6 +150,13 @@ function AdminModulo() {
   });
 
   const modulo = useQuery({ queryKey: cmsKeys.module(moduleId), queryFn: () => getModule(moduleId) });
+  const courseId = modulo.data?.course_id;
+  const course = useQuery({
+    queryKey: cmsKeys.course(courseId ?? "none"),
+    queryFn: () => getCourse(courseId as string),
+    enabled: Boolean(courseId),
+  });
+
   const lessons = useQuery({
     queryKey: cmsKeys.lessons(moduleId),
     queryFn: () => listLessons(moduleId),
@@ -257,7 +266,19 @@ function AdminModulo() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumbs
+        items={[
+          { label: "Cursos", to: "/admin/cursos" },
+          {
+            label: course.data?.titulo ?? "Curso",
+            to: "/admin/cursos/$courseId",
+            params: { courseId: modulo.data.course_id },
+          },
+          { label: modulo.data.titulo },
+        ]}
+      />
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
+
         <Link to="/admin/cursos/$courseId" params={{ courseId: modulo.data.course_id }}>
           <ArrowLeft className="h-4 w-4" /> Voltar ao curso
         </Link>

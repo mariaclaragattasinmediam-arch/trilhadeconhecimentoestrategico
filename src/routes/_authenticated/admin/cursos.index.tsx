@@ -276,8 +276,10 @@ function AdminCursos() {
                 </div>
                 <p className="line-clamp-1 text-sm text-muted-foreground">{c.descricao || "—"}</p>
                 <p className="text-xs text-muted-foreground">
-                  {c.modulos} módulo(s) · {c.aulas} aula(s)
+                  {c.modulos} módulo(s) · {c.aulas} aula(s) · criado em{" "}
+                  {new Date(c.created_at).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                 </p>
+
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Button asChild size="sm" variant="outline">
