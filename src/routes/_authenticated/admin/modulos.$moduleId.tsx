@@ -266,7 +266,19 @@ function AdminModulo() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumbs
+        items={[
+          { label: "Cursos", to: "/admin/cursos" },
+          {
+            label: course.data?.titulo ?? "Curso",
+            to: "/admin/cursos/$courseId",
+            params: { courseId: modulo.data.course_id },
+          },
+          { label: modulo.data.titulo },
+        ]}
+      />
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
+
         <Link to="/admin/cursos/$courseId" params={{ courseId: modulo.data.course_id }}>
           <ArrowLeft className="h-4 w-4" /> Voltar ao curso
         </Link>
