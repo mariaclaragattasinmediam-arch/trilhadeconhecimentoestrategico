@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_authenticated/admin/cursos")({
+export const Route = createFileRoute("/_authenticated/admin/cursos/")({
   head: () => ({
     meta: [
       { title: "Gerenciar cursos — Trilha Ongoing" },
