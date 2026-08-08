@@ -16,6 +16,7 @@ import {
   updateLesson,
 } from "@/lib/cms";
 import { move, useDragSort } from "@/components/admin/sortable";
+import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { BlockCard } from "@/components/admin/block-editor";
 import { StatusSelect } from "@/components/admin/status";
 import { EmptyState, PageHeader } from "@/components/common/page-parts";

@@ -30,6 +30,7 @@ import {
   type LessonInput,
 } from "@/lib/cms";
 import { move, useDragSort } from "@/components/admin/sortable";
+import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
