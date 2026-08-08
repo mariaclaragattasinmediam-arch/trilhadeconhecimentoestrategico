@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Blocks, Loader2, Plus } from "lucide-react";
+import { ArrowLeft, Blocks, Eye, Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
-import type { BlockContent, BlockType, LessonBlock } from "@/lib/api";
+import type { BlockContent, BlockType, ContentStatus, LessonBlock } from "@/lib/api";
 import {
   BLOCK_LABELS,
   cmsKeys,
   createBlock,
   deleteBlock,
+  getCourse,
   getLesson,
+  getModule,
   listBlocks,
   reorderBlocks,
   updateBlock,
@@ -18,12 +20,15 @@ import {
 import { move, useDragSort } from "@/components/admin/sortable";
 import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { BlockCard } from "@/components/admin/block-editor";
-import { StatusSelect } from "@/components/admin/status";
+import { StatusBadge, StatusSelect } from "@/components/admin/status";
+import { BlockRenderer } from "@/components/lesson/block-renderer";
+import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, PageHeader } from "@/components/common/page-parts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,18 +54,55 @@ function AdminAulaEditor() {
   const { lessonId } = Route.useParams();
   const queryClient = useQueryClient();
   const [ordem, setOrdem] = useState<LessonBlock[]>([]);
+  const [preview, setPreview] = useState(false);
+  const [dados, setDados] = useState<{ titulo: string; descricao: string; status: ContentStatus }>({
+    titulo: "",
+    descricao: "",
+    status: "rascunho",
+  });
 
   const lesson = useQuery({ queryKey: cmsKeys.lesson(lessonId), queryFn: () => getLesson(lessonId) });
   const blocks = useQuery({ queryKey: cmsKeys.blocks(lessonId), queryFn: () => listBlocks(lessonId) });
+
+  const moduleId = lesson.data?.module_id;
+  const modulo = useQuery({
+    queryKey: cmsKeys.module(moduleId ?? "none"),
+    queryFn: () => getModule(moduleId as string),
+    enabled: Boolean(moduleId),
+  });
+  const courseId = modulo.data?.course_id;
+  const course = useQuery({
+    queryKey: cmsKeys.course(courseId ?? "none"),
+    queryFn: () => getCourse(courseId as string),
+    enabled: Boolean(courseId),
+  });
 
   useEffect(() => {
     if (blocks.data) setOrdem(blocks.data);
   }, [blocks.data]);
 
+  useEffect(() => {
+    if (lesson.data) {
+      setDados({
+        titulo: lesson.data.titulo,
+        descricao: lesson.data.descricao,
+        status: lesson.data.status,
+      });
+    }
+  }, [lesson.data]);
+
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["cms"] });
-    void queryClient.invalidateQueries({ queryKey: ["blocks"] });
   };
+
+  const salvarAula = useMutation({
+    mutationFn: () => updateLesson(lessonId, dados),
+    onSuccess: () => {
+      toast.success("Aula salva.");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const adicionar = useMutation({
     mutationFn: (tipo: BlockType) => createBlock(lessonId, tipo, {}),
@@ -103,10 +145,11 @@ function AdminAulaEditor() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const statusAula = useMutation({
-    mutationFn: (status: "rascunho" | "publicado" | "arquivado") => updateLesson(lessonId, { status }),
-    onSuccess: () => {
-      toast.success("Status da aula atualizado.");
+  const publicar = useMutation({
+    mutationFn: (status: ContentStatus) => updateLesson(lessonId, { status }),
+    onSuccess: (_d, status) => {
+      setDados((prev) => ({ ...prev, status }));
+      toast.success(status === "publicado" ? "Aula publicada." : "Status atualizado.");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -149,8 +192,59 @@ function AdminAulaEditor() {
     );
   }
 
+  if (preview) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Button variant="ghost" size="sm" className="-ml-2" onClick={() => setPreview(false)}>
+            <Pencil className="h-4 w-4" /> Voltar para edição
+          </Button>
+          <StatusBadge status={dados.status} />
+        </div>
+        <article className="surface space-y-6 p-6">
+          <header className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">{dados.titulo}</h1>
+            {dados.descricao ? (
+              <p className="text-sm text-muted-foreground">{dados.descricao}</p>
+            ) : null}
+          </header>
+          {ordem.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Esta aula ainda não possui conteúdo.</p>
+          ) : (
+            <div className="space-y-6">
+              {ordem.map((b) => (
+                <BlockRenderer key={b.id} block={b} />
+              ))}
+            </div>
+          )}
+        </article>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      <AdminBreadcrumbs
+        items={[
+          { label: "Cursos", to: "/admin/cursos" },
+          ...(courseId
+            ? [
+                {
+                  label: course.data?.titulo ?? "Curso",
+                  to: "/admin/cursos/$courseId",
+                  params: { courseId },
+                },
+              ]
+            : []),
+          {
+            label: modulo.data?.titulo ?? "Módulo",
+            to: "/admin/modulos/$moduleId",
+            params: { moduleId: lesson.data.module_id },
+          },
+          { label: lesson.data.titulo },
+        ]}
+      />
+
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
         <Link to="/admin/modulos/$moduleId" params={{ moduleId: lesson.data.module_id }}>
           <ArrowLeft className="h-4 w-4" /> Voltar ao módulo
@@ -159,24 +253,71 @@ function AdminAulaEditor() {
 
       <PageHeader
         title={lesson.data.titulo}
-        description="Adicione, edite, reordene, duplique e remova blocos de conteúdo."
+        description="Edite os dados da aula e monte o conteúdo em blocos."
         action={
-          <Button asChild variant="outline">
-            <Link to="/aula/$lessonId" params={{ lessonId }}>
-              Ver como aluno
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" onClick={() => setPreview(true)}>
+              <Eye className="h-4 w-4" /> Visualizar aula
+            </Button>
+            {dados.status !== "publicado" ? (
+              <Button variant="outline" onClick={() => publicar.mutate("publicado")}>
+                Publicar
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => publicar.mutate("rascunho")}>
+                Despublicar
+              </Button>
+            )}
+          </div>
         }
       />
 
-      <div className="surface flex flex-col gap-3 p-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full space-y-1.5 sm:max-w-xs">
-          <Label htmlFor="aula-status-editor">Status da aula</Label>
-          <StatusSelect
-            id="aula-status-editor"
-            value={lesson.data.status}
-            onChange={(status) => statusAula.mutate(status)}
+      <section className="surface space-y-4 p-5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="a-titulo">Título</Label>
+            <Input
+              id="a-titulo"
+              value={dados.titulo}
+              maxLength={140}
+              onChange={(e) => setDados({ ...dados, titulo: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="aula-status-editor">Status</Label>
+            <StatusSelect
+              id="aula-status-editor"
+              value={dados.status}
+              onChange={(status) => setDados({ ...dados, status })}
+            />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="a-desc">Descrição</Label>
+          <Textarea
+            id="a-desc"
+            rows={3}
+            maxLength={600}
+            value={dados.descricao}
+            onChange={(e) => setDados({ ...dados, descricao: e.target.value })}
           />
+        </div>
+        <Button
+          onClick={() => salvarAula.mutate()}
+          disabled={salvarAula.isPending || dados.titulo.trim().length < 3}
+        >
+          {salvarAula.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          Salvar alterações
+        </Button>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Blocos de conteúdo</h2>
+          <p className="text-sm text-muted-foreground">
+            Arraste os cartões ou use as setas para reordenar. As alterações são salvas
+            automaticamente.
+          </p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
