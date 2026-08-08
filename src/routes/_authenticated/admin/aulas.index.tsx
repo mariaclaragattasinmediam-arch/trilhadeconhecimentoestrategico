@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_authenticated/admin/aulas")({
+export const Route = createFileRoute("/_authenticated/admin/aulas/")({
   head: () => ({
     meta: [
       { title: "Aulas — CMS Trilha Ongoing" },
