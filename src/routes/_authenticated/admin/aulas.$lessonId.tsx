@@ -22,7 +22,6 @@ import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { BlockCard } from "@/components/admin/block-editor";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { BlockRenderer } from "@/components/lesson/block-renderer";
-import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, PageHeader } from "@/components/common/page-parts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
