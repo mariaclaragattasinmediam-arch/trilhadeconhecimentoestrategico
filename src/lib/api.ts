@@ -6,6 +6,7 @@ export type BlockType =
   | "texto"
   | "imagem"
   | "pdf"
+  | "documento"
   | "video"
   | "youtube"
   | "link"
@@ -29,6 +30,10 @@ export interface BlockContent {
   path?: string;
   nome?: string;
   autor?: string;
+  mime?: string;
+  tamanho?: number;
+  poster?: string;
+  fonte?: "upload" | "externo";
 }
 
 export interface Course {
@@ -75,8 +80,10 @@ export interface FileRecord {
   url: string;
   path: string | null;
   tipo: string;
+  mime_type?: string | null;
   tamanho: number | null;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface ProgressRow {

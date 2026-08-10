@@ -1,8 +1,17 @@
 import DOMPurify from "dompurify";
-import { Download, ExternalLink, FileText, ImageOff, Loader2 } from "lucide-react";
+import {
+  Download,
+  ExternalLink,
+  FileSpreadsheet,
+  FileText,
+  ImageOff,
+  Loader2,
+  Presentation,
+} from "lucide-react";
 import type { BlockContent, LessonBlock } from "@/lib/api";
 import { useSignedUrl } from "@/hooks/use-signed-url";
 import { youtubeEmbedUrl } from "@/lib/storage";
+import { fileExtension, formatSize } from "@/lib/uploads";
 import { Button } from "@/components/ui/button";
 
 const destaqueStyles: Record<string, string> = {
@@ -64,16 +73,23 @@ function SignedPdf({ content }: { content: BlockContent }) {
   return (
     <div className="surface overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <FileText className="h-4 w-4 text-primary" />
-          {content.nome || "Documento PDF"}
+        <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
+          <FileText className="h-4 w-4 shrink-0 text-primary" />
+          <span className="truncate">{content.nome || "Documento PDF"}</span>
         </div>
         {data ? (
-          <Button asChild size="sm" variant="outline">
-            <a href={data} target="_blank" rel="noreferrer">
-              <Download className="h-4 w-4" /> Baixar
-            </a>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              <a href={data} target="_blank" rel="noreferrer">
+                <ExternalLink className="h-4 w-4" /> Visualizar
+              </a>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <a href={data} download={content.nome || "documento.pdf"}>
+                <Download className="h-4 w-4" /> Baixar PDF
+              </a>
+            </Button>
+          </div>
         ) : null}
       </div>
       {isLoading ? (
@@ -81,10 +97,51 @@ function SignedPdf({ content }: { content: BlockContent }) {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : data ? (
-        <iframe title={content.nome || "PDF"} src={data} className="h-[560px] w-full" />
+        <iframe
+          title={content.nome || "PDF"}
+          src={data}
+          loading="lazy"
+          className="h-[560px] w-full"
+        />
       ) : (
         <p className="p-6 text-sm text-muted-foreground">Não foi possível carregar o documento.</p>
       )}
+    </div>
+  );
+}
+
+const docIcons: Record<string, typeof FileText> = {
+  xlsx: FileSpreadsheet,
+  pptx: Presentation,
+};
+
+function SignedDocument({ content }: { content: BlockContent }) {
+  const { data, isLoading } = useResolvedUrl(content);
+  const ext = fileExtension(content.nome || content.path || "");
+  const Icon = docIcons[ext] ?? FileText;
+  return (
+    <div className="surface flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="rounded-xl bg-muted p-2 text-muted-foreground">
+          <Icon className="h-5 w-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-medium">
+            {content.nome || "Arquivo"}
+          </span>
+          <span className="block text-xs uppercase text-muted-foreground">
+            {ext || "arquivo"} · {formatSize(content.tamanho)}
+          </span>
+          {content.descricao ? (
+            <span className="block text-xs text-muted-foreground">{content.descricao}</span>
+          ) : null}
+        </span>
+      </div>
+      <Button asChild size="sm" variant="outline" disabled={isLoading || !data}>
+        <a href={data || "#"} download={content.nome || "arquivo"}>
+          <Download className="h-4 w-4" /> Baixar arquivo
+        </a>
+      </Button>
     </div>
   );
 }
@@ -99,12 +156,20 @@ function SignedVideo({ content }: { content: BlockContent }) {
     );
   if (!data) return <p className="text-sm text-muted-foreground">Vídeo indisponível.</p>;
   return (
-    <video
-      controls
-      preload="metadata"
-      src={data}
-      className="w-full rounded-2xl border border-border bg-black shadow-[var(--shadow-soft)]"
-    />
+    <figure className="space-y-2">
+      <video
+        controls
+        controlsList="nodownload"
+        preload="none"
+        playsInline
+        src={data}
+        {...(content.poster ? { poster: content.poster } : {})}
+        className="w-full rounded-2xl border border-border bg-black shadow-[var(--shadow-soft)]"
+      />
+      {content.nome ? (
+        <figcaption className="text-xs text-muted-foreground">{content.nome}</figcaption>
+      ) : null}
+    </figure>
   );
 }
 
@@ -185,6 +250,8 @@ export function BlockRenderer({ block }: { block: LessonBlock }) {
       return <SignedImage content={c} />;
     case "pdf":
       return <SignedPdf content={c} />;
+    case "documento":
+      return <SignedDocument content={c} />;
     case "video":
       return <SignedVideo content={c} />;
     case "youtube": {
