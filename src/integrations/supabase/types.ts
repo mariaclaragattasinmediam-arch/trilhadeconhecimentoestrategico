@@ -52,30 +52,36 @@ export type Database = {
           created_at: string
           id: string
           lesson_block_id: string | null
+          mime_type: string
           nome: string
           path: string | null
           tamanho: number | null
           tipo: string
+          updated_at: string
           url: string
         }
         Insert: {
           created_at?: string
           id?: string
           lesson_block_id?: string | null
+          mime_type?: string
           nome: string
           path?: string | null
           tamanho?: number | null
           tipo?: string
+          updated_at?: string
           url: string
         }
         Update: {
           created_at?: string
           id?: string
           lesson_block_id?: string | null
+          mime_type?: string
           nome?: string
           path?: string | null
           tamanho?: number | null
           tipo?: string
+          updated_at?: string
           url?: string
         }
         Relationships: [
