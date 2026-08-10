@@ -1,4 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
+import {
+  purgeFilesForBlocks,
+  purgeFilesForCourse,
+  purgeFilesForLessons,
+  purgeFilesForModules,
+} from "@/lib/files";
 import type {
   BlockContent,
   BlockType,
@@ -33,6 +39,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   subtitulo: "Subtítulo",
   imagem: "Imagem",
   pdf: "PDF",
+  documento: "Documento (DOCX, PPTX, XLSX)",
   video: "Vídeo",
   youtube: "Vídeo do YouTube",
   link: "Link externo",
@@ -106,6 +113,7 @@ export async function updateCourse(id: string, input: Partial<CourseInput>) {
 
 
 export async function deleteCourse(id: string) {
+  await purgeFilesForCourse(id);
   const { error } = await supabase.from("courses").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
@@ -146,6 +154,7 @@ export async function updateModule(id: string, input: Partial<ModuleInput>) {
 }
 
 export async function deleteModule(id: string) {
+  await purgeFilesForModules([id]);
   const { error } = await supabase.from("modules").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
@@ -202,6 +211,7 @@ export async function updateLesson(id: string, input: Partial<LessonInput>) {
 }
 
 export async function deleteLesson(id: string) {
+  await purgeFilesForLessons([id]);
   const { error } = await supabase.from("lessons").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
@@ -253,6 +263,7 @@ export async function updateBlock(id: string, conteudo: BlockContent) {
 }
 
 export async function deleteBlock(id: string) {
+  await purgeFilesForBlocks([id]);
   const { error } = await supabase.from("lesson_blocks").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }

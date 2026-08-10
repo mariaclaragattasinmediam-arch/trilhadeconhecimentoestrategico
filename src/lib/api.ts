@@ -80,8 +80,10 @@ export interface FileRecord {
   url: string;
   path: string | null;
   tipo: string;
+  mime_type?: string | null;
   tamanho: number | null;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface ProgressRow {
