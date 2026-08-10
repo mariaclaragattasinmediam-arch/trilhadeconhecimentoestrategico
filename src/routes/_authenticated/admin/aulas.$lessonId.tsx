@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Blocks, Eye, Loader2, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, Blocks, Eye, FileStack, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { BlockContent, BlockType, ContentStatus, LessonBlock } from "@/lib/api";
 import {
@@ -17,6 +17,10 @@ import {
   updateBlock,
   updateLesson,
 } from "@/lib/cms";
+import { deleteFileRecord, fileKeys, listFilesByLesson } from "@/lib/files";
+import { formatSize } from "@/lib/uploads";
+import { getSignedUrl } from "@/lib/storage";
+import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { move, useDragSort } from "@/components/admin/sortable";
 import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { BlockCard } from "@/components/admin/block-editor";
@@ -54,6 +58,7 @@ function AdminAulaEditor() {
   const queryClient = useQueryClient();
   const [ordem, setOrdem] = useState<LessonBlock[]>([]);
   const [preview, setPreview] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [dados, setDados] = useState<{ titulo: string; descricao: string; status: ContentStatus }>({
     titulo: "",
     descricao: "",
@@ -62,6 +67,11 @@ function AdminAulaEditor() {
 
   const lesson = useQuery({ queryKey: cmsKeys.lesson(lessonId), queryFn: () => getLesson(lessonId) });
   const blocks = useQuery({ queryKey: cmsKeys.blocks(lessonId), queryFn: () => listBlocks(lessonId) });
+
+  const arquivos = useQuery({
+    queryKey: fileKeys.byLesson(lessonId),
+    queryFn: () => listFilesByLesson(lessonId),
+  });
 
   const moduleId = lesson.data?.module_id;
   const modulo = useQuery({
@@ -92,6 +102,25 @@ function AdminAulaEditor() {
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["cms"] });
+  };
+
+  const excluirArquivo = useMutation({
+    mutationFn: (file: { id: string; path: string | null }) => deleteFileRecord(file),
+    onSuccess: () => {
+      toast.success("Arquivo excluído com sucesso.");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const abrirArquivo = async (path: string | null) => {
+    if (!path) return;
+    try {
+      const url = await getSignedUrl(path);
+      window.open(url, "_blank", "noopener");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível abrir o arquivo.");
+    }
   };
 
   const salvarAula = useMutation({
@@ -303,7 +332,7 @@ function AdminAulaEditor() {
         </div>
         <Button
           onClick={() => salvarAula.mutate()}
-          disabled={salvarAula.isPending || dados.titulo.trim().length < 3}
+          disabled={salvarAula.isPending || uploading || dados.titulo.trim().length < 3}
         >
           {salvarAula.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Salvar alterações
@@ -355,6 +384,12 @@ function AdminAulaEditor() {
               block={b}
               index={index}
               total={ordem.length}
+              context={{
+                courseId: courseId ?? null,
+                moduleId: lesson.data?.module_id ?? null,
+                lessonId,
+              }}
+              onBusyChange={setUploading}
               dragProps={getItemProps(index) as unknown as Record<string, unknown>}
               onChange={(conteudo) => {
                 alterarConteudo(b.id, conteudo);
@@ -367,6 +402,51 @@ function AdminAulaEditor() {
           ))}
         </ul>
       )}
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold">Arquivos desta aula</h2>
+          <p className="text-sm text-muted-foreground">
+            Todos os arquivos enviados nos blocos desta aula.
+          </p>
+        </div>
+        {arquivos.isLoading ? (
+          <Skeleton className="h-24 w-full rounded-2xl" />
+        ) : (arquivos.data ?? []).length === 0 ? (
+          <EmptyState
+            icon={FileStack}
+            title="Nenhum arquivo enviado"
+            description="Envie imagens, PDFs, documentos ou vídeos pelos blocos da aula."
+          />
+        ) : (
+          <ul className="surface divide-y divide-border">
+            {arquivos.data!.map((f) => (
+              <li key={f.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{f.nome}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(f.mime_type || f.tipo || "arquivo")} · {formatSize(f.tamanho)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button size="sm" variant="outline" onClick={() => void abrirArquivo(f.path)}>
+                    Abrir
+                  </Button>
+                  <ConfirmDelete
+                    title="Excluir este arquivo?"
+                    description="Essa ação removerá o arquivo permanentemente."
+                    onConfirm={() => excluirArquivo.mutate({ id: f.id, path: f.path })}
+                  >
+                    <Button size="icon" variant="ghost" className="text-destructive" aria-label="Excluir arquivo">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </ConfirmDelete>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {salvarBloco.isPending ? (
         <p className="text-xs text-muted-foreground">Salvando alterações…</p>
