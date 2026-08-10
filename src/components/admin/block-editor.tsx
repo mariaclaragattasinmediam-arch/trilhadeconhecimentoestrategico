@@ -1,22 +1,22 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
   Copy,
   GripVertical,
-  Loader2,
   Plus,
   Trash2,
-  Upload,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { BlockContent, BlockType, LessonBlock } from "@/lib/api";
 import { BLOCK_LABELS } from "@/lib/cms";
-import { supabase } from "@/integrations/supabase/client";
-import { uploadFile } from "@/lib/storage";
+import { purgeFilesForBlocks, registerFile } from "@/lib/files";
+import { formatSize, type FileKind, type LessonContext, type UploadResult } from "@/lib/uploads";
+import { FileUploader } from "@/components/admin/file-uploader";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { BlockRenderer } from "@/components/lesson/block-renderer";
+import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,85 +30,93 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const accepts: Partial<Record<BlockType, string>> = {
-  imagem: ".png,.jpg,.jpeg",
-  pdf: ".pdf",
-  video: ".mp4",
-};
+interface UploadFieldProps {
+  block: LessonBlock;
+  content: BlockContent;
+  kind: FileKind;
+  extensions?: string[];
+  context: LessonContext;
+  allowUrl?: boolean;
+  onChange: (patch: BlockContent) => void;
+  onBusyChange?: (busy: boolean) => void;
+}
 
 function UploadField({
   block,
   content,
+  kind,
+  extensions,
+  context,
+  allowUrl = true,
   onChange,
-}: {
-  block: LessonBlock;
-  content: BlockContent;
-  onChange: (patch: BlockContent) => void;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
+  onBusyChange,
+}: UploadFieldProps) {
+  const handleUploaded = async (up: UploadResult) => {
+    await registerFile(block.id, up);
+    // remove versões anteriores do bloco (banco + storage) para evitar órfãos
+    await purgeFilesForBlocks([block.id], up.path);
+    onChange({
+      ...content,
+      path: up.path,
+      nome: up.nome,
+      mime: up.mime,
+      tamanho: up.tamanho,
+      url: "",
+    });
+    toast.success(content.path ? "Arquivo substituído com sucesso." : "Arquivo enviado com sucesso.");
+  };
 
-  const handle = async (file: File) => {
-    setBusy(true);
+  const excluir = async () => {
     try {
-      const up = await uploadFile(file, block.tipo);
-      onChange({ ...content, path: up.path, nome: up.nome, url: "" });
-      await supabase.from("files").insert({
-        lesson_block_id: block.id,
-        nome: up.nome,
-        url: up.path,
-        path: up.path,
-        tipo: up.tipo,
-        tamanho: up.tamanho,
-      });
-      toast.success("Arquivo enviado.");
+      await purgeFilesForBlocks([block.id]);
+      onChange({ ...content, path: "", nome: "", mime: "", tamanho: 0 });
+      toast.success("Arquivo excluído com sucesso.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Falha no upload.");
-    } finally {
-      setBusy(false);
+      toast.error(e instanceof Error ? e.message : "Não foi possível excluir o arquivo.");
     }
   };
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          ref={inputRef}
-          type="file"
-          accept={accepts[block.tipo] ?? undefined}
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handle(file);
-            e.target.value = "";
-          }}
-        />
-        <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => inputRef.current?.click()}>
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Enviar arquivo
-        </Button>
-        {content.path ? (
-          <span className="flex items-center gap-2 text-xs text-muted-foreground">
-            {content.nome || content.path}
-            <button
-              type="button"
-              aria-label="Remover arquivo"
-              className="rounded-full p-0.5 hover:bg-muted"
-              onClick={() => onChange({ ...content, path: "", nome: "" })}
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </span>
-        ) : null}
-      </div>
-      <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Ou informe uma URL pública</Label>
-        <Input
-          value={content.url ?? ""}
-          placeholder="https://…"
-          onChange={(e) => onChange({ ...content, url: e.target.value })}
-        />
-      </div>
+      {content.path ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{content.nome || content.path}</p>
+            <p className="text-xs text-muted-foreground">
+              {content.mime || "arquivo"} · {formatSize(content.tamanho)}
+            </p>
+          </div>
+          <ConfirmDelete
+            title="Excluir este arquivo?"
+            description="Essa ação removerá o arquivo permanentemente."
+            onConfirm={() => void excluir()}
+          >
+            <Button type="button" size="sm" variant="ghost" className="text-destructive">
+              <Trash2 className="h-4 w-4" /> Excluir
+            </Button>
+          </ConfirmDelete>
+        </div>
+      ) : null}
+
+      <FileUploader
+        kind={kind}
+        {...(extensions ? { extensions } : {})}
+        context={context}
+        onUploaded={handleUploaded}
+        onError={(m) => toast.error(m)}
+        {...(onBusyChange ? { onBusyChange } : {})}
+      />
+
+      {allowUrl ? (
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Ou informe uma URL pública</Label>
+          <Input
+            value={content.url ?? ""}
+            placeholder="https://…"
+            onChange={(e) => onChange({ ...content, url: e.target.value })}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -116,11 +124,15 @@ function UploadField({
 function Fields({
   block,
   content,
+  context,
   onChange,
+  onBusyChange,
 }: {
   block: LessonBlock;
   content: BlockContent;
+  context: LessonContext;
   onChange: (patch: BlockContent) => void;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   switch (block.tipo) {
     case "titulo":
@@ -273,7 +285,14 @@ function Fields({
     case "imagem":
       return (
         <div className="space-y-3">
-          <UploadField block={block} content={content} onChange={onChange} />
+          <UploadField
+            block={block}
+            content={content}
+            kind="imagem"
+            context={context}
+            onChange={onChange}
+            {...(onBusyChange ? { onBusyChange } : {})}
+          />
           <Input
             value={content.legenda ?? ""}
             placeholder="Legenda (opcional)"
@@ -282,10 +301,17 @@ function Fields({
         </div>
       );
     case "pdf":
-    case "video":
       return (
         <div className="space-y-3">
-          <UploadField block={block} content={content} onChange={onChange} />
+          <UploadField
+            block={block}
+            content={content}
+            kind="documento"
+            extensions={["pdf"]}
+            context={context}
+            onChange={onChange}
+            {...(onBusyChange ? { onBusyChange } : {})}
+          />
           <Input
             value={content.nome ?? ""}
             placeholder="Nome exibido (opcional)"
@@ -293,6 +319,75 @@ function Fields({
           />
         </div>
       );
+    case "documento":
+      return (
+        <div className="space-y-3">
+          <UploadField
+            block={block}
+            content={content}
+            kind="documento"
+            extensions={["docx", "pptx", "xlsx", "pdf"]}
+            context={context}
+            allowUrl={false}
+            onChange={onChange}
+            {...(onBusyChange ? { onBusyChange } : {})}
+          />
+          <Input
+            value={content.descricao ?? ""}
+            placeholder="Descrição (opcional)"
+            onChange={(e) => onChange({ ...content, descricao: e.target.value })}
+          />
+        </div>
+      );
+    case "video": {
+      const fonte = content.fonte ?? (content.url && !content.path ? "externo" : "upload");
+      return (
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Origem do vídeo</Label>
+            <Select
+              value={fonte}
+              onValueChange={(v) => onChange({ ...content, fonte: v as "upload" | "externo" })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="upload">Upload de vídeo (MP4)</SelectItem>
+                <SelectItem value="externo">Vídeo externo (URL)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {fonte === "upload" ? (
+            <UploadField
+              block={block}
+              content={content}
+              kind="video"
+              context={context}
+              allowUrl={false}
+              onChange={onChange}
+              {...(onBusyChange ? { onBusyChange } : {})}
+            />
+          ) : (
+            <Input
+              value={content.url ?? ""}
+              placeholder="https://…/video.mp4"
+              onChange={(e) => onChange({ ...content, url: e.target.value })}
+            />
+          )}
+          <Input
+            value={content.poster ?? ""}
+            placeholder="URL do poster (opcional)"
+            onChange={(e) => onChange({ ...content, poster: e.target.value })}
+          />
+          <Input
+            value={content.nome ?? ""}
+            placeholder="Nome exibido (opcional)"
+            onChange={(e) => onChange({ ...content, nome: e.target.value })}
+          />
+        </div>
+      );
+    }
     default:
       return null;
   }
@@ -302,25 +397,35 @@ interface BlockCardProps {
   block: LessonBlock;
   index: number;
   total: number;
+  context: LessonContext;
   dragProps: Record<string, unknown>;
   onChange: (conteudo: BlockContent) => void;
   onMove: (direction: -1 | 1) => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onBusyChange?: (busy: boolean) => void;
 }
 
 export function BlockCard({
   block,
   index,
   total,
+  context,
   dragProps,
   onChange,
   onMove,
   onDuplicate,
   onDelete,
+  onBusyChange,
 }: BlockCardProps) {
   const [preview, setPreview] = useState(false);
+  const [busy, setBusy] = useState(false);
   const content = (block.conteudo ?? {}) as BlockContent;
+
+  const marcarBusy = (v: boolean) => {
+    setBusy(v);
+    onBusyChange?.(v);
+  };
 
   return (
     <li {...dragProps} className={`surface p-4 ${(dragProps['className'] as string) ?? ""}`}>
@@ -363,24 +468,42 @@ export function BlockCard({
           <Button type="button" size="icon" variant="ghost" aria-label="Duplicar bloco" onClick={onDuplicate}>
             <Copy className="h-4 w-4" />
           </Button>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            aria-label="Excluir bloco"
-            className="text-destructive"
-            onClick={onDelete}
+          <ConfirmDelete
+            title="Excluir este bloco?"
+            description="Os arquivos vinculados a ele também serão removidos permanentemente."
+            onConfirm={onDelete}
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              aria-label="Excluir bloco"
+              className="text-destructive"
+              disabled={busy}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </ConfirmDelete>
         </div>
       </div>
+      {busy ? (
+        <p className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <X className="hidden h-3 w-3" aria-hidden />
+          Upload em andamento — aguarde para concluir a edição do bloco.
+        </p>
+      ) : null}
       {preview ? (
         <div className="rounded-xl border border-dashed border-border p-4">
           <BlockRenderer block={{ ...block, conteudo: content }} />
         </div>
       ) : (
-        <Fields block={block} content={content} onChange={onChange} />
+        <Fields
+          block={block}
+          content={content}
+          context={context}
+          onChange={onChange}
+          onBusyChange={marcarBusy}
+        />
       )}
     </li>
   );
