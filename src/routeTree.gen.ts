@@ -22,6 +22,8 @@ import { Route as AuthenticatedAdminArquivosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin/usuarios'
 import { Route as AuthenticatedAulaLessonIdRouteImport } from './routes/_authenticated/aula.$lessonId'
 import { Route as AuthenticatedCursoCourseIdRouteImport } from './routes/_authenticated/curso.$courseId'
+import { Route as AuthenticatedAdminAcompanhamentoIndexRouteImport } from './routes/_authenticated/admin/acompanhamento.index'
+import { Route as AuthenticatedAdminAcompanhamentoUserIdRouteImport } from './routes/_authenticated/admin/acompanhamento.$userId'
 import { Route as AuthenticatedAdminAulasIndexRouteImport } from './routes/_authenticated/admin/aulas.index'
 import { Route as AuthenticatedAdminAulasLessonIdRouteImport } from './routes/_authenticated/admin/aulas.$lessonId'
 import { Route as AuthenticatedAdminCursosIndexRouteImport } from './routes/_authenticated/admin/cursos.index'
@@ -98,6 +100,18 @@ const AuthenticatedCursoCourseIdRoute =
     path: '/curso/$courseId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminAcompanhamentoIndexRoute =
+  AuthenticatedAdminAcompanhamentoIndexRouteImport.update({
+    id: '/acompanhamento/',
+    path: '/acompanhamento/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAcompanhamentoUserIdRoute =
+  AuthenticatedAdminAcompanhamentoUserIdRouteImport.update({
+    id: '/acompanhamento/$userId',
+    path: '/acompanhamento/$userId',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminAulasIndexRoute =
   AuthenticatedAdminAulasIndexRouteImport.update({
     id: '/aulas/',
@@ -148,9 +162,11 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
+  '/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
   '/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
   '/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
+  '/admin/acompanhamento/': typeof AuthenticatedAdminAcompanhamentoIndexRoute
   '/admin/aulas/': typeof AuthenticatedAdminAulasIndexRoute
   '/admin/cursos/': typeof AuthenticatedAdminCursosIndexRoute
   '/admin/modulos/': typeof AuthenticatedAdminModulosIndexRoute
@@ -168,9 +184,11 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
+  '/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
   '/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
   '/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
+  '/admin/acompanhamento': typeof AuthenticatedAdminAcompanhamentoIndexRoute
   '/admin/aulas': typeof AuthenticatedAdminAulasIndexRoute
   '/admin/cursos': typeof AuthenticatedAdminCursosIndexRoute
   '/admin/modulos': typeof AuthenticatedAdminModulosIndexRoute
@@ -190,9 +208,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
   '/_authenticated/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
+  '/_authenticated/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/_authenticated/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
   '/_authenticated/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
   '/_authenticated/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
+  '/_authenticated/admin/acompanhamento/': typeof AuthenticatedAdminAcompanhamentoIndexRoute
   '/_authenticated/admin/aulas/': typeof AuthenticatedAdminAulasIndexRoute
   '/_authenticated/admin/cursos/': typeof AuthenticatedAdminCursosIndexRoute
   '/_authenticated/admin/modulos/': typeof AuthenticatedAdminModulosIndexRoute
@@ -212,9 +232,11 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/aula/$lessonId'
     | '/curso/$courseId'
+    | '/admin/acompanhamento/$userId'
     | '/admin/aulas/$lessonId'
     | '/admin/cursos/$courseId'
     | '/admin/modulos/$moduleId'
+    | '/admin/acompanhamento/'
     | '/admin/aulas/'
     | '/admin/cursos/'
     | '/admin/modulos/'
@@ -232,9 +254,11 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/aula/$lessonId'
     | '/curso/$courseId'
+    | '/admin/acompanhamento/$userId'
     | '/admin/aulas/$lessonId'
     | '/admin/cursos/$courseId'
     | '/admin/modulos/$moduleId'
+    | '/admin/acompanhamento'
     | '/admin/aulas'
     | '/admin/cursos'
     | '/admin/modulos'
@@ -253,9 +277,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/aula/$lessonId'
     | '/_authenticated/curso/$courseId'
+    | '/_authenticated/admin/acompanhamento/$userId'
     | '/_authenticated/admin/aulas/$lessonId'
     | '/_authenticated/admin/cursos/$courseId'
     | '/_authenticated/admin/modulos/$moduleId'
+    | '/_authenticated/admin/acompanhamento/'
     | '/_authenticated/admin/aulas/'
     | '/_authenticated/admin/cursos/'
     | '/_authenticated/admin/modulos/'
@@ -360,6 +386,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCursoCourseIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/acompanhamento/': {
+      id: '/_authenticated/admin/acompanhamento/'
+      path: '/acompanhamento'
+      fullPath: '/admin/acompanhamento/'
+      preLoaderRoute: typeof AuthenticatedAdminAcompanhamentoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/acompanhamento/$userId': {
+      id: '/_authenticated/admin/acompanhamento/$userId'
+      path: '/acompanhamento/$userId'
+      fullPath: '/admin/acompanhamento/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminAcompanhamentoUserIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/aulas/': {
       id: '/_authenticated/admin/aulas/'
       path: '/aulas'
@@ -408,9 +448,11 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminArquivosRoute: typeof AuthenticatedAdminArquivosRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedAdminAcompanhamentoUserIdRoute: typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   AuthenticatedAdminAulasLessonIdRoute: typeof AuthenticatedAdminAulasLessonIdRoute
   AuthenticatedAdminCursosCourseIdRoute: typeof AuthenticatedAdminCursosCourseIdRoute
   AuthenticatedAdminModulosModuleIdRoute: typeof AuthenticatedAdminModulosModuleIdRoute
+  AuthenticatedAdminAcompanhamentoIndexRoute: typeof AuthenticatedAdminAcompanhamentoIndexRoute
   AuthenticatedAdminAulasIndexRoute: typeof AuthenticatedAdminAulasIndexRoute
   AuthenticatedAdminCursosIndexRoute: typeof AuthenticatedAdminCursosIndexRoute
   AuthenticatedAdminModulosIndexRoute: typeof AuthenticatedAdminModulosIndexRoute
@@ -420,11 +462,15 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminArquivosRoute: AuthenticatedAdminArquivosRoute,
     AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+    AuthenticatedAdminAcompanhamentoUserIdRoute:
+      AuthenticatedAdminAcompanhamentoUserIdRoute,
     AuthenticatedAdminAulasLessonIdRoute: AuthenticatedAdminAulasLessonIdRoute,
     AuthenticatedAdminCursosCourseIdRoute:
       AuthenticatedAdminCursosCourseIdRoute,
     AuthenticatedAdminModulosModuleIdRoute:
       AuthenticatedAdminModulosModuleIdRoute,
+    AuthenticatedAdminAcompanhamentoIndexRoute:
+      AuthenticatedAdminAcompanhamentoIndexRoute,
     AuthenticatedAdminAulasIndexRoute: AuthenticatedAdminAulasIndexRoute,
     AuthenticatedAdminCursosIndexRoute: AuthenticatedAdminCursosIndexRoute,
     AuthenticatedAdminModulosIndexRoute: AuthenticatedAdminModulosIndexRoute,
