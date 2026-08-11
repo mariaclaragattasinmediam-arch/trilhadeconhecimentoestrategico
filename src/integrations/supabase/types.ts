@@ -302,6 +302,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_module_averages: {
+        Args: never
+        Returns: {
+          avg_percent: number
+          module_id: string
+          ordem: number
+          titulo: string
+          total_lessons: number
+        }[]
+      }
+      admin_student_overview: {
+        Args: never
+        Returns: {
+          completed_lessons: number
+          current_module_completed: number
+          current_module_id: string
+          current_module_ordem: number
+          current_module_titulo: string
+          current_module_total: number
+          email: string
+          last_access: string
+          last_lesson_titulo: string
+          nome: string
+          total_lessons: number
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
