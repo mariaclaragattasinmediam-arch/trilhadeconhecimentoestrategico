@@ -141,19 +141,20 @@ function AcompanhamentoPage() {
       return true;
     });
     const dir = asc ? 1 : -1;
-    const order: Record<string, number> = { nao_iniciado: 0, em_andamento: 1, concluido: 2 };
+    const order = (s: StudentOverview["status"]) =>
+      s === "nao_iniciado" ? 0 : s === "em_andamento" ? 1 : 2;
     return [...list].sort((a, b) => {
       switch (sort) {
         case "nome":
           return a.nome.localeCompare(b.nome) * dir;
         case "modulo":
-          return (a.currentModuleOrdem ?? 999) - (b.currentModuleOrdem ?? 999) * 1 || 0;
+          return ((a.currentModuleOrdem ?? 999) - (b.currentModuleOrdem ?? 999)) * dir;
         case "aulas":
           return (a.completedLessons - b.completedLessons) * dir;
         case "acesso":
           return ((daysSince(a.lastAccess) ?? 99999) - (daysSince(b.lastAccess) ?? 99999)) * -dir;
         case "status":
-          return (order[a.status] - order[b.status]) * dir;
+          return (order(a.status) - order(b.status)) * dir;
         default:
           return (a.percent - b.percent) * dir || a.nome.localeCompare(b.nome);
       }
