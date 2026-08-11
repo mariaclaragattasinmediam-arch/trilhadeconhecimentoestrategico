@@ -36,6 +36,7 @@ const adminItems = [
   { title: "Cursos", url: "/admin/cursos", icon: FolderKanban },
   { title: "Módulos", url: "/admin/modulos", icon: Layers },
   { title: "Aulas", url: "/admin/aulas", icon: PlaySquare },
+  { title: "Acompanhamento", url: "/admin/acompanhamento", icon: LineChart },
   { title: "Arquivos", url: "/admin/arquivos", icon: FileStack },
   { title: "Usuários", url: "/admin/usuarios", icon: Users },
 ];
