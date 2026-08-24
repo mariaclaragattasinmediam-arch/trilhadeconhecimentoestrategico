@@ -510,11 +510,43 @@ export type Database = {
           },
         ]
       }
+      question_answers: {
+        Row: {
+          option_id: string
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          option_id: string
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          option_id?: string
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_answers_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "question_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       question_options: {
         Row: {
           created_at: string
           id: string
-          is_correct: boolean
           ordem: number
           question_id: string
           texto: string
@@ -522,7 +554,6 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          is_correct?: boolean
           ordem?: number
           question_id: string
           texto?: string
@@ -530,7 +561,6 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          is_correct?: boolean
           ordem?: number
           question_id?: string
           texto?: string
