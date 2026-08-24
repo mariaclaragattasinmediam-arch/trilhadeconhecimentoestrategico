@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedCertificadosRouteImport } from './routes/_authenticated/certificados'
 import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMateriaisRouteImport } from './routes/_authenticated/materiais'
@@ -51,6 +52,12 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCertificadosRoute =
+  AuthenticatedCertificadosRouteImport.update({
+    id: '/certificados',
+    path: '/certificados',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCursosRoute = AuthenticatedCursosRouteImport.update({
   id: '/cursos',
   path: '/cursos',
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/certificados': typeof AuthenticatedCertificadosRoute
   '/cursos': typeof AuthenticatedCursosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/materiais': typeof AuthenticatedMateriaisRoute
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/certificados': typeof AuthenticatedCertificadosRoute
   '/cursos': typeof AuthenticatedCursosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/materiais': typeof AuthenticatedMateriaisRoute
@@ -208,6 +217,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/certificados': typeof AuthenticatedCertificadosRoute
   '/_authenticated/cursos': typeof AuthenticatedCursosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/materiais': typeof AuthenticatedMateriaisRoute
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/certificados'
     | '/cursos'
     | '/dashboard'
     | '/materiais'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/certificados'
     | '/cursos'
     | '/dashboard'
     | '/materiais'
@@ -280,6 +292,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/certificados'
     | '/_authenticated/cursos'
     | '/_authenticated/dashboard'
     | '/_authenticated/materiais'
@@ -334,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/certificados': {
+      id: '/_authenticated/certificados'
+      path: '/certificados'
+      fullPath: '/certificados'
+      preLoaderRoute: typeof AuthenticatedCertificadosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/cursos': {
@@ -503,6 +523,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedCertificadosRoute: typeof AuthenticatedCertificadosRoute
   AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMateriaisRoute: typeof AuthenticatedMateriaisRoute
@@ -515,6 +536,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedCertificadosRoute: AuthenticatedCertificadosRoute,
   AuthenticatedCursosRoute: AuthenticatedCursosRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMateriaisRoute: AuthenticatedMateriaisRoute,
