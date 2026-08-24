@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
  * Cartão do fluxo de conclusão: aparece quando o aluno termina o conteúdo,
  * conduzindo para a avaliação final e depois para o certificado.
  */
-export function TrackCompletionCard({ courseId }: { courseId?: string }) {
+export function TrackCompletionCard({ courseId }: { courseId?: string | undefined }) {
   const completion = useQuery({
     queryKey: assessmentKeys.completion(courseId ?? ""),
     queryFn: () => getCompletionStatus(courseId!),

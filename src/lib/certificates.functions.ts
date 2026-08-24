@@ -12,6 +12,30 @@ function formatWorkloadServer(seconds: number) {
   return `${h} ${h === 1 ? "hora" : "horas"} e ${m} ${m === 1 ? "minuto" : "minutos"}`;
 }
 
+export interface CertificateDto {
+  id: string;
+  certificate_code: string;
+  student_name: string;
+  course_name: string;
+  workload_formatted: string;
+  final_score: number;
+  completion_date: string;
+  issued_at: string;
+}
+
+function toDto(row: Record<string, unknown>): CertificateDto {
+  return {
+    id: String(row["id"]),
+    certificate_code: String(row["certificate_code"]),
+    student_name: String(row["student_name"]),
+    course_name: String(row["course_name"]),
+    workload_formatted: String(row["workload_formatted"]),
+    final_score: Number(row["final_score"] ?? 0),
+    completion_date: String(row["completion_date"]),
+    issued_at: String(row["issued_at"]),
+  };
+}
+
 function baseUrl(): string {
   const explicit = process.env["PUBLIC_SITE_URL"];
   if (explicit) return explicit.replace(/\/+$/, "");
@@ -34,7 +58,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .eq("course_id", data.courseId)
       .maybeSingle();
-    if (existing.data) return existing.data as Record<string, unknown>;
+    if (existing.data) return toDto(existing.data as unknown as Record<string, unknown>);
 
     const statusRes = await supabase.rpc("course_completion_status", {
       _course_id: data.courseId,
@@ -106,7 +130,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
         .select("*")
         .single();
 
-      if (!inserted.error) return inserted.data as Record<string, unknown>;
+      if (!inserted.error) return toDto(inserted.data as unknown as Record<string, unknown>);
       await supabaseAdmin.storage.from(BUCKET).remove([pdfPath]);
       if (!inserted.error.message.includes("duplicate")) throw new Error(inserted.error.message);
       sequence += 1;
