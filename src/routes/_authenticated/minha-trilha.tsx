@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
+import { TrackCompletionCard } from "@/components/lesson/track-completion-card";
+import { qk as queryKeys } from "@/lib/api";
 
 export const Route = createFileRoute("/_authenticated/minha-trilha")({
   head: () => ({

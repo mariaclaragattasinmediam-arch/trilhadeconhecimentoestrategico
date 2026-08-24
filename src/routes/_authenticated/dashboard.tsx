@@ -16,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingGrid, PageHeader } from "@/components/common/page-parts";
+import { TrackCompletionCard } from "@/components/lesson/track-completion-card";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -117,6 +118,8 @@ function DashboardPage() {
             : "Continue de onde parou na sua trilha de conhecimento."
         }
       />
+
+      {!isAdmin ? <TrackCompletionCard courseId={courses.data?.[0]?.id} /> : null}
 
       {isAdmin ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
