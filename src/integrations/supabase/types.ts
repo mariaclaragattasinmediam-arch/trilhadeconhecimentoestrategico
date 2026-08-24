@@ -674,19 +674,6 @@ export type Database = {
           total_questions: number
         }[]
       }
-      validate_certificate: {
-        Args: { _code: string }
-        Returns: {
-          certificate_code: string
-          completion_date: string
-          course_name: string
-          issued_at: string
-          student_name: string
-          verification_status: string
-          workload_formatted: string
-          workload_minutes: number
-        }[]
-      }
     }
     Enums: {
       app_role: "admin" | "aluno"
