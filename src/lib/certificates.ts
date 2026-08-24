@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { validateCertificatePublic } from "@/lib/certificate-validation.functions";
 
 export interface Certificate {
   id: string;
@@ -54,7 +55,6 @@ export async function listAllCertificates(): Promise<Certificate[]> {
 
 /** Consulta pública de autenticidade (usada pelo QR Code do certificado). */
 export async function validateCertificate(code: string): Promise<CertificateValidation | null> {
-  const { validateCertificatePublic } = await import("@/lib/certificate-validation.functions");
   return (await validateCertificatePublic({
     data: { code: code.trim() },
   })) as CertificateValidation | null;
