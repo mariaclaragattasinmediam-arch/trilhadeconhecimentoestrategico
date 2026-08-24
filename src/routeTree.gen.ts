@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ValidarCertificadoRouteImport } from './routes/validar-certificado'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedCertificadosRouteImport } from './routes/_authenticated/certificados'
 import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
@@ -45,6 +46,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ValidarCertificadoRoute = ValidarCertificadoRouteImport.update({
+  id: '/validar-certificado',
+  path: '/validar-certificado',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
@@ -166,6 +172,7 @@ const AuthenticatedAdminModulosModuleIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/validar-certificado': typeof ValidarCertificadoRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/certificados': typeof AuthenticatedCertificadosRoute
   '/cursos': typeof AuthenticatedCursosRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/validar-certificado': typeof ValidarCertificadoRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/certificados': typeof AuthenticatedCertificadosRoute
   '/cursos': typeof AuthenticatedCursosRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/validar-certificado': typeof ValidarCertificadoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/certificados': typeof AuthenticatedCertificadosRoute
   '/_authenticated/cursos': typeof AuthenticatedCursosRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/validar-certificado'
     | '/admin'
     | '/certificados'
     | '/cursos'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/validar-certificado'
     | '/admin'
     | '/certificados'
     | '/cursos'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/validar-certificado'
     | '/_authenticated/admin'
     | '/_authenticated/certificados'
     | '/_authenticated/cursos'
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ValidarCertificadoRoute: typeof ValidarCertificadoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -340,6 +353,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/validar-certificado': {
+      id: '/validar-certificado'
+      path: '/validar-certificado'
+      fullPath: '/validar-certificado'
+      preLoaderRoute: typeof ValidarCertificadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -555,6 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ValidarCertificadoRoute: ValidarCertificadoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
