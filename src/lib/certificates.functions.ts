@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const BUCKET = "certificados";
+const BUCKET = "certificates";
 
 function formatWorkloadServer(seconds: number) {
   const total = Math.max(0, Math.round(seconds / 60));
