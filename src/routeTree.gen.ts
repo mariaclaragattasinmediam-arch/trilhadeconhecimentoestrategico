@@ -30,6 +30,7 @@ import { Route as AuthenticatedAdminAcompanhamentoUserIdRouteImport } from './ro
 import { Route as AuthenticatedAdminAulasIndexRouteImport } from './routes/_authenticated/admin/aulas.index'
 import { Route as AuthenticatedAdminAulasLessonIdRouteImport } from './routes/_authenticated/admin/aulas.$lessonId'
 import { Route as AuthenticatedAdminAvaliacoesIndexRouteImport } from './routes/_authenticated/admin/avaliacoes.index'
+import { Route as AuthenticatedAdminAvaliacoesAssessmentIdRouteImport } from './routes/_authenticated/admin/avaliacoes.$assessmentId'
 import { Route as AuthenticatedAdminCursosIndexRouteImport } from './routes/_authenticated/admin/cursos.index'
 import { Route as AuthenticatedAdminCursosCourseIdRouteImport } from './routes/_authenticated/admin/cursos.$courseId'
 import { Route as AuthenticatedAdminModulosIndexRouteImport } from './routes/_authenticated/admin/modulos.index'
@@ -151,6 +152,12 @@ const AuthenticatedAdminAvaliacoesIndexRoute =
     path: '/avaliacoes/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAvaliacoesAssessmentIdRoute =
+  AuthenticatedAdminAvaliacoesAssessmentIdRouteImport.update({
+    id: '/avaliacoes/$assessmentId',
+    path: '/avaliacoes/$assessmentId',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCursosIndexRoute =
   AuthenticatedAdminCursosIndexRouteImport.update({
     id: '/cursos/',
@@ -194,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
   '/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
+  '/admin/avaliacoes/$assessmentId': typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   '/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
   '/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
   '/admin/acompanhamento/': typeof AuthenticatedAdminAcompanhamentoIndexRoute
@@ -220,6 +228,7 @@ export interface FileRoutesByTo {
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
   '/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
+  '/admin/avaliacoes/$assessmentId': typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   '/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
   '/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
   '/admin/acompanhamento': typeof AuthenticatedAdminAcompanhamentoIndexRoute
@@ -248,6 +257,7 @@ export interface FileRoutesById {
   '/_authenticated/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
   '/_authenticated/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/_authenticated/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
+  '/_authenticated/admin/avaliacoes/$assessmentId': typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   '/_authenticated/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
   '/_authenticated/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
   '/_authenticated/admin/acompanhamento/': typeof AuthenticatedAdminAcompanhamentoIndexRoute
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/curso/$courseId'
     | '/admin/acompanhamento/$userId'
     | '/admin/aulas/$lessonId'
+    | '/admin/avaliacoes/$assessmentId'
     | '/admin/cursos/$courseId'
     | '/admin/modulos/$moduleId'
     | '/admin/acompanhamento/'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/curso/$courseId'
     | '/admin/acompanhamento/$userId'
     | '/admin/aulas/$lessonId'
+    | '/admin/avaliacoes/$assessmentId'
     | '/admin/cursos/$courseId'
     | '/admin/modulos/$moduleId'
     | '/admin/acompanhamento'
@@ -329,6 +341,7 @@ export interface FileRouteTypes {
     | '/_authenticated/curso/$courseId'
     | '/_authenticated/admin/acompanhamento/$userId'
     | '/_authenticated/admin/aulas/$lessonId'
+    | '/_authenticated/admin/avaliacoes/$assessmentId'
     | '/_authenticated/admin/cursos/$courseId'
     | '/_authenticated/admin/modulos/$moduleId'
     | '/_authenticated/admin/acompanhamento/'
@@ -494,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAvaliacoesIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/avaliacoes/$assessmentId': {
+      id: '/_authenticated/admin/avaliacoes/$assessmentId'
+      path: '/avaliacoes/$assessmentId'
+      fullPath: '/admin/avaliacoes/$assessmentId'
+      preLoaderRoute: typeof AuthenticatedAdminAvaliacoesAssessmentIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/cursos/': {
       id: '/_authenticated/admin/cursos/'
       path: '/cursos'
@@ -530,6 +550,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminAcompanhamentoUserIdRoute: typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   AuthenticatedAdminAulasLessonIdRoute: typeof AuthenticatedAdminAulasLessonIdRoute
+  AuthenticatedAdminAvaliacoesAssessmentIdRoute: typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   AuthenticatedAdminCursosCourseIdRoute: typeof AuthenticatedAdminCursosCourseIdRoute
   AuthenticatedAdminModulosModuleIdRoute: typeof AuthenticatedAdminModulosModuleIdRoute
   AuthenticatedAdminAcompanhamentoIndexRoute: typeof AuthenticatedAdminAcompanhamentoIndexRoute
@@ -546,6 +567,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminAcompanhamentoUserIdRoute:
       AuthenticatedAdminAcompanhamentoUserIdRoute,
     AuthenticatedAdminAulasLessonIdRoute: AuthenticatedAdminAulasLessonIdRoute,
+    AuthenticatedAdminAvaliacoesAssessmentIdRoute:
+      AuthenticatedAdminAvaliacoesAssessmentIdRoute,
     AuthenticatedAdminCursosCourseIdRoute:
       AuthenticatedAdminCursosCourseIdRoute,
     AuthenticatedAdminModulosModuleIdRoute:
