@@ -141,11 +141,41 @@ export interface UploadResult {
   nome: string;
   mime: string;
   tamanho: number;
+  /** Duração real detectada (apenas vídeos). */
+  durationSeconds?: number;
 }
 
 interface UploadOptions {
   onProgress?: (percent: number) => void;
   registerAbort?: (abort: () => void) => void;
+}
+
+/**
+ * Lê a duração real de um vídeo local antes do upload, usando o elemento
+ * <video> do navegador. Retorna null quando não for possível detectar.
+ */
+export function probeVideoDuration(file: File): Promise<number | null> {
+  if (typeof document === "undefined") return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    const finish = (value: number | null) => {
+      URL.revokeObjectURL(url);
+      resolve(value);
+    };
+    const timeout = setTimeout(() => finish(null), 15000);
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      clearTimeout(timeout);
+      const d = video.duration;
+      finish(Number.isFinite(d) && d > 0 ? Math.round(d) : null);
+    };
+    video.onerror = () => {
+      clearTimeout(timeout);
+      finish(null);
+    };
+    video.src = url;
+  });
 }
 
 /**
@@ -199,7 +229,12 @@ export async function uploadToStorage(
     xhr.send(file);
   });
 
-  return { path, nome: file.name, mime, tamanho: file.size };
+  const result: UploadResult = { path, nome: file.name, mime, tamanho: file.size };
+  if (mime.startsWith("video/")) {
+    const duration = await probeVideoDuration(file);
+    if (duration) result.durationSeconds = duration;
+  }
+  return result;
 }
 
 export async function removeFromStorage(paths: string[]) {

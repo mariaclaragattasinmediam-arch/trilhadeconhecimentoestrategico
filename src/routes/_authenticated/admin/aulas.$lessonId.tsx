@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Blocks, Eye, FileStack, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type { BlockContent, BlockType, ContentStatus, LessonBlock } from "@/lib/api";
+import type { BlockContent, BlockMeta, BlockType, ContentStatus, LessonBlock } from "@/lib/api";
 import {
   BLOCK_LABELS,
   cmsKeys,
@@ -15,10 +15,17 @@ import {
   listBlocks,
   reorderBlocks,
   updateBlock,
+  updateBlockMeta,
   updateLesson,
 } from "@/lib/cms";
 import { deleteFileRecord, fileKeys, listFilesByLesson } from "@/lib/files";
 import { formatSize } from "@/lib/uploads";
+import {
+  blockDurationSeconds,
+  formatWorkload,
+  formatWorkloadShort,
+  lessonWorkloadSeconds,
+} from "@/lib/workload";
 import { getSignedUrl } from "@/lib/storage";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { move, useDragSort } from "@/components/admin/sortable";
@@ -148,6 +155,12 @@ function AdminAulaEditor() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const salvarMeta = useMutation({
+    mutationFn: ({ id, meta }: { id: string; meta: BlockMeta }) => updateBlockMeta(id, meta),
+    onSuccess: invalidate,
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const duplicarBloco = useMutation({
     mutationFn: (block: LessonBlock) =>
       createBlock(lessonId, block.tipo, (block.conteudo ?? {}) as BlockContent),
@@ -194,6 +207,11 @@ function AdminAulaEditor() {
 
   const alterarConteudo = (id: string, conteudo: BlockContent) => {
     setOrdem((prev) => prev.map((b) => (b.id === id ? { ...b, conteudo } : b)));
+  };
+
+  const alterarMeta = (id: string, meta: BlockMeta) => {
+    setOrdem((prev) => prev.map((b) => (b.id === id ? { ...b, ...meta } : b)));
+    salvarMeta.mutate({ id, meta });
   };
 
   if (lesson.isLoading) {
@@ -339,6 +357,30 @@ function AdminAulaEditor() {
         </Button>
       </section>
 
+      <section className="surface space-y-2 p-5">
+        <h2 className="text-lg font-semibold">Carga horária da aula</h2>
+        <p className="text-2xl font-semibold text-primary">
+          {formatWorkload(lessonWorkloadSeconds(ordem))}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Calculada automaticamente a partir dos blocos desta aula.
+        </p>
+        {ordem.filter((b) => blockDurationSeconds(b) > 0).length > 0 ? (
+          <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+            {ordem
+              .filter((b) => blockDurationSeconds(b) > 0)
+              .map((b) => (
+                <li key={b.id} className="flex items-center justify-between gap-3">
+                  <span>{BLOCK_LABELS[b.tipo]}</span>
+                  <span className="font-medium text-foreground">
+                    {formatWorkloadShort(blockDurationSeconds(b))}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        ) : null}
+      </section>
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">Blocos de conteúdo</h2>
@@ -395,6 +437,7 @@ function AdminAulaEditor() {
                 alterarConteudo(b.id, conteudo);
                 salvarBloco.mutate({ id: b.id, conteudo });
               }}
+              onMetaChange={(meta) => alterarMeta(b.id, meta)}
               onMove={(dir) => aplicarOrdem(index, index + dir)}
               onDuplicate={() => duplicarBloco.mutate(b)}
               onDelete={() => excluirBloco.mutate(b.id)}

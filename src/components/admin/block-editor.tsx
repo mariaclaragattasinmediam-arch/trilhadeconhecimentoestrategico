@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -9,10 +9,11 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { BlockContent, BlockType, LessonBlock } from "@/lib/api";
+import type { BlockContent, BlockMeta, BlockType, LessonBlock } from "@/lib/api";
 import { BLOCK_LABELS } from "@/lib/cms";
 import { purgeFilesForBlocks, registerFile } from "@/lib/files";
 import { formatSize, type FileKind, type LessonContext, type UploadResult } from "@/lib/uploads";
+import { blockDurationSeconds, formatDuration, formatWorkloadShort } from "@/lib/workload";
 import { FileUploader } from "@/components/admin/file-uploader";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { BlockRenderer } from "@/components/lesson/block-renderer";
@@ -38,6 +39,7 @@ interface UploadFieldProps {
   context: LessonContext;
   allowUrl?: boolean;
   onChange: (patch: BlockContent) => void;
+  onMeta?: (patch: BlockMeta) => void;
   onBusyChange?: (busy: boolean) => void;
 }
 
@@ -49,6 +51,7 @@ function UploadField({
   context,
   allowUrl = true,
   onChange,
+  onMeta,
   onBusyChange,
 }: UploadFieldProps) {
   const handleUploaded = async (up: UploadResult) => {
@@ -63,6 +66,7 @@ function UploadField({
       tamanho: up.tamanho,
       url: "",
     });
+    if (up.durationSeconds) onMeta?.({ duration_seconds: up.durationSeconds });
     toast.success(content.path ? "Arquivo substituído com sucesso." : "Arquivo enviado com sucesso.");
   };
 
@@ -70,6 +74,7 @@ function UploadField({
     try {
       await purgeFilesForBlocks([block.id]);
       onChange({ ...content, path: "", nome: "", mime: "", tamanho: 0 });
+      onMeta?.({ duration_seconds: null });
       toast.success("Arquivo excluído com sucesso.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível excluir o arquivo.");
@@ -126,12 +131,14 @@ function Fields({
   content,
   context,
   onChange,
+  onMeta,
   onBusyChange,
 }: {
   block: LessonBlock;
   content: BlockContent;
   context: LessonContext;
   onChange: (patch: BlockContent) => void;
+  onMeta?: (patch: BlockMeta) => void;
   onBusyChange?: (busy: boolean) => void;
 }) {
   switch (block.tipo) {
@@ -366,6 +373,7 @@ function Fields({
               context={context}
               allowUrl={false}
               onChange={onChange}
+              {...(onMeta ? { onMeta } : {})}
               {...(onBusyChange ? { onBusyChange } : {})}
             />
           ) : (
@@ -393,6 +401,74 @@ function Fields({
   }
 }
 
+function WorkloadFields({
+  block,
+  onMetaChange,
+}: {
+  block: LessonBlock;
+  onMetaChange: (meta: BlockMeta) => void;
+}) {
+  const conta = block.count_for_workload !== false;
+  const real = block.duration_seconds ?? 0;
+  const estimadoMin = Math.round((block.estimated_duration_seconds ?? 0) / 60);
+  const [minutos, setMinutos] = useState(estimadoMin ? String(estimadoMin) : "");
+
+  useEffect(() => {
+    setMinutos(estimadoMin ? String(estimadoMin) : "");
+  }, [estimadoMin]);
+
+  return (
+    <div className="mt-4 space-y-3 rounded-xl border border-dashed border-border p-3">
+      <div className="flex items-center gap-2">
+        <Switch
+          id={`wl-${block.id}`}
+          checked={conta}
+          onCheckedChange={(v) => onMetaChange({ count_for_workload: v })}
+        />
+        <Label htmlFor={`wl-${block.id}`} className="text-sm font-normal">
+          Participa da carga horária
+        </Label>
+      </div>
+
+      {real > 0 ? (
+        <p className="text-xs text-muted-foreground">
+          Duração detectada automaticamente: <strong>{formatDuration(real)}</strong> — não é
+          possível editar manualmente a duração real do vídeo.
+        </p>
+      ) : (
+        <div className="space-y-1.5">
+          <Label htmlFor={`est-${block.id}`} className="text-xs text-muted-foreground">
+            Tempo estimado (minutos)
+          </Label>
+          <Input
+            id={`est-${block.id}`}
+            type="number"
+            min={0}
+            max={600}
+            className="max-w-40"
+            value={minutos}
+            disabled={!conta}
+            onChange={(e) => setMinutos(e.target.value)}
+            onBlur={() => {
+              const value = Math.max(0, Math.min(600, Number(minutos) || 0));
+              onMetaChange({ estimated_duration_seconds: value * 60 });
+            }}
+          />
+          {block.tipo === "youtube" ? (
+            <p className="text-xs text-muted-foreground">
+              Duração não identificada automaticamente — informe o tempo estimado.
+            </p>
+          ) : null}
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground">
+        Carga horária deste bloco: <strong>{formatWorkloadShort(blockDurationSeconds(block))}</strong>
+      </p>
+    </div>
+  );
+}
+
 interface BlockCardProps {
   block: LessonBlock;
   index: number;
@@ -400,6 +476,7 @@ interface BlockCardProps {
   context: LessonContext;
   dragProps: Record<string, unknown>;
   onChange: (conteudo: BlockContent) => void;
+  onMetaChange: (meta: BlockMeta) => void;
   onMove: (direction: -1 | 1) => void;
   onDuplicate: () => void;
   onDelete: () => void;
@@ -413,6 +490,7 @@ export function BlockCard({
   context,
   dragProps,
   onChange,
+  onMetaChange,
   onMove,
   onDuplicate,
   onDelete,
@@ -497,13 +575,17 @@ export function BlockCard({
           <BlockRenderer block={{ ...block, conteudo: content }} />
         </div>
       ) : (
-        <Fields
-          block={block}
-          content={content}
-          context={context}
-          onChange={onChange}
-          onBusyChange={marcarBusy}
-        />
+        <>
+          <Fields
+            block={block}
+            content={content}
+            context={context}
+            onChange={onChange}
+            onMeta={onMetaChange}
+            onBusyChange={marcarBusy}
+          />
+          <WorkloadFields block={block} onMetaChange={onMetaChange} />
+        </>
       )}
     </li>
   );

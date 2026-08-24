@@ -48,6 +48,7 @@ export async function registerFile(blockId: string, upload: UploadResult): Promi
       tipo: upload.mime,
       mime_type: upload.mime,
       tamanho: upload.tamanho,
+      duration_seconds: upload.durationSeconds ?? null,
     })
     .select("*")
     .single();
