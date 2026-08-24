@@ -10,6 +10,8 @@ import {
   Route as RouteIcon,
   Users,
   PlaySquare,
+  ClipboardList,
+  Award,
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,6 +31,7 @@ const alunoItems = [
   { title: "Cursos", url: "/cursos", icon: BookOpen },
   { title: "Minha Trilha", url: "/minha-trilha", icon: RouteIcon },
   { title: "Materiais", url: "/materiais", icon: FileStack },
+  { title: "Certificados", url: "/certificados", icon: Award },
   { title: "Perfil", url: "/perfil", icon: Users },
 ];
 
@@ -37,6 +40,7 @@ const adminItems = [
   { title: "Cursos", url: "/admin/cursos", icon: FolderKanban },
   { title: "Módulos", url: "/admin/modulos", icon: Layers },
   { title: "Aulas", url: "/admin/aulas", icon: PlaySquare },
+  { title: "Avaliações", url: "/admin/avaliacoes", icon: ClipboardList },
   { title: "Acompanhamento", url: "/admin/acompanhamento", icon: LineChart },
   { title: "Arquivos", url: "/admin/arquivos", icon: FileStack },
   { title: "Usuários", url: "/admin/usuarios", icon: Users },
