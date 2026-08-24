@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    resolve: {
+      alias: {
+        // pdf-lib importa helpers nomeados do tslib; o build CJS quebra no runtime
+        // do worker ("Cannot destructure property '__extends'"). Usa o build ESM.
+        tslib: "tslib/tslib.es6.js",
+      },
+    },
+  },
 });
