@@ -14,6 +14,228 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_attempts: {
+        Row: {
+          answers: Json
+          assessment_id: string
+          attempt_number: number
+          completed_at: string | null
+          correct_answers: number
+          id: string
+          passed: boolean
+          score: number
+          started_at: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          assessment_id: string
+          attempt_number?: number
+          completed_at?: string | null
+          correct_answers?: number
+          id?: string
+          passed?: boolean
+          score?: number
+          started_at?: string
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          assessment_id?: string
+          attempt_number?: number
+          completed_at?: string | null
+          correct_answers?: number
+          id?: string
+          passed?: boolean
+          score?: number
+          started_at?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_attempts_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_questions: {
+        Row: {
+          assessment_id: string
+          created_at: string
+          enunciado: string
+          explicacao: string
+          id: string
+          module_id: string | null
+          ordem: number
+          peso: number
+          status: Database["public"]["Enums"]["content_status"]
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string
+          enunciado?: string
+          explicacao?: string
+          id?: string
+          module_id?: string | null
+          ordem?: number
+          peso?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string
+          enunciado?: string
+          explicacao?: string
+          id?: string
+          module_id?: string | null
+          ordem?: number
+          peso?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_questions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_questions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          course_id: string
+          created_at: string
+          descricao: string
+          id: string
+          instrucoes: string
+          max_attempts: number | null
+          passing_score: number
+          shuffle_options: boolean
+          shuffle_questions: boolean
+          status: Database["public"]["Enums"]["content_status"]
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          instrucoes?: string
+          max_attempts?: number | null
+          passing_score?: number
+          shuffle_options?: boolean
+          shuffle_questions?: boolean
+          status?: Database["public"]["Enums"]["content_status"]
+          titulo?: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          instrucoes?: string
+          max_attempts?: number | null
+          passing_score?: number
+          shuffle_options?: boolean
+          shuffle_questions?: boolean
+          status?: Database["public"]["Enums"]["content_status"]
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificates: {
+        Row: {
+          certificate_code: string
+          completion_date: string
+          course_id: string
+          course_name: string
+          created_at: string
+          final_score: number
+          id: string
+          issued_at: string
+          pdf_path: string | null
+          student_name: string
+          updated_at: string
+          user_id: string
+          verification_status: string
+          workload_formatted: string
+          workload_minutes: number
+        }
+        Insert: {
+          certificate_code: string
+          completion_date?: string
+          course_id: string
+          course_name: string
+          created_at?: string
+          final_score?: number
+          id?: string
+          issued_at?: string
+          pdf_path?: string | null
+          student_name: string
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+          workload_formatted?: string
+          workload_minutes?: number
+        }
+        Update: {
+          certificate_code?: string
+          completion_date?: string
+          course_id?: string
+          course_name?: string
+          created_at?: string
+          final_score?: number
+          id?: string
+          issued_at?: string
+          pdf_path?: string | null
+          student_name?: string
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+          workload_formatted?: string
+          workload_minutes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           capa_url: string | null
@@ -50,6 +272,7 @@ export type Database = {
       files: {
         Row: {
           created_at: string
+          duration_seconds: number | null
           id: string
           lesson_block_id: string | null
           mime_type: string
@@ -62,6 +285,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          duration_seconds?: number | null
           id?: string
           lesson_block_id?: string | null
           mime_type?: string
@@ -74,6 +298,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          duration_seconds?: number | null
           id?: string
           lesson_block_id?: string | null
           mime_type?: string
@@ -97,7 +322,10 @@ export type Database = {
       lesson_blocks: {
         Row: {
           conteudo: Json
+          count_for_workload: boolean
           created_at: string
+          duration_seconds: number | null
+          estimated_duration_seconds: number | null
           id: string
           lesson_id: string
           ordem: number
@@ -106,7 +334,10 @@ export type Database = {
         }
         Insert: {
           conteudo?: Json
+          count_for_workload?: boolean
           created_at?: string
+          duration_seconds?: number | null
+          estimated_duration_seconds?: number | null
           id?: string
           lesson_id: string
           ordem?: number
@@ -115,7 +346,10 @@ export type Database = {
         }
         Update: {
           conteudo?: Json
+          count_for_workload?: boolean
           created_at?: string
+          duration_seconds?: number | null
+          estimated_duration_seconds?: number | null
           id?: string
           lesson_id?: string
           ordem?: number
@@ -276,6 +510,71 @@ export type Database = {
           },
         ]
       }
+      question_answers: {
+        Row: {
+          option_id: string
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          option_id: string
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          option_id?: string
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_answers_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "question_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_options: {
+        Row: {
+          created_at: string
+          id: string
+          ordem: number
+          question_id: string
+          texto: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          question_id: string
+          texto?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          question_id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -329,6 +628,32 @@ export type Database = {
           user_id: string
         }[]
       }
+      course_completion_status: {
+        Args: { _course_id: string }
+        Returns: {
+          assessment_id: string
+          attempts_used: number
+          best_score: number
+          certificate_id: string
+          completed_lessons: number
+          content_done: boolean
+          max_attempts: number
+          passed: boolean
+          passing_score: number
+          total_lessons: number
+          workload_seconds: number
+        }[]
+      }
+      course_workload_breakdown: {
+        Args: { _course_id: string }
+        Returns: {
+          module_id: string
+          ordem: number
+          seconds: number
+          titulo: string
+        }[]
+      }
+      course_workload_seconds: { Args: { _course_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -337,6 +662,31 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      lesson_workload_seconds: { Args: { _lesson_id: string }; Returns: number }
+      submit_assessment: {
+        Args: { _answers: Json; _assessment_id: string }
+        Returns: {
+          attempt_id: string
+          attempt_number: number
+          correct_answers: number
+          passed: boolean
+          score: number
+          total_questions: number
+        }[]
+      }
+      validate_certificate: {
+        Args: { _code: string }
+        Returns: {
+          certificate_code: string
+          completion_date: string
+          course_name: string
+          issued_at: string
+          student_name: string
+          verification_status: string
+          workload_formatted: string
+          workload_minutes: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "aluno"

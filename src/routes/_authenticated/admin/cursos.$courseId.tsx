@@ -34,6 +34,7 @@ import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
+import { WorkloadSummary } from "@/components/admin/workload-summary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -267,6 +268,8 @@ function AdminCurso() {
       </Button>
 
       <PageHeader title={course.data.titulo} description="Dados do curso e organização de módulos." />
+
+      <WorkloadSummary courseId={courseId} />
 
 
       <section className="surface space-y-4 p-5">

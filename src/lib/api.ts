@@ -71,6 +71,15 @@ export interface LessonBlock {
   tipo: BlockType;
   conteudo: BlockContent;
   ordem: number;
+  duration_seconds?: number | null;
+  estimated_duration_seconds?: number | null;
+  count_for_workload?: boolean;
+}
+
+export interface BlockMeta {
+  duration_seconds?: number | null;
+  estimated_duration_seconds?: number | null;
+  count_for_workload?: boolean;
 }
 
 export interface FileRecord {

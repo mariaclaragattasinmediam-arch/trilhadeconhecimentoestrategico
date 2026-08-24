@@ -7,6 +7,7 @@ import {
 } from "@/lib/files";
 import type {
   BlockContent,
+  BlockMeta,
   BlockType,
   ContentStatus,
   Course,
@@ -262,6 +263,17 @@ export async function updateBlock(id: string, conteudo: BlockContent) {
   return check<LessonBlock>(res as never);
 }
 
+/** Atualiza os metadados de carga horária de um bloco. */
+export async function updateBlockMeta(id: string, meta: BlockMeta) {
+  const res = await supabase
+    .from("lesson_blocks")
+    .update(meta)
+    .eq("id", id)
+    .select("*")
+    .single();
+  return check<LessonBlock>(res as never);
+}
+
 export async function deleteBlock(id: string) {
   await purgeFilesForBlocks([id]);
   const { error } = await supabase.from("lesson_blocks").delete().eq("id", id);
@@ -285,6 +297,9 @@ async function copyBlocks(fromLessonId: string, toLessonId: string) {
       tipo: b.tipo,
       conteudo: b.conteudo as never,
       ordem: b.ordem,
+      duration_seconds: b.duration_seconds ?? null,
+      estimated_duration_seconds: b.estimated_duration_seconds ?? null,
+      count_for_workload: b.count_for_workload ?? true,
     })),
   );
   if (error) throw new Error(error.message);
