@@ -21,6 +21,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAdminArquivosRouteImport } from './routes/_authenticated/admin/arquivos'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin/usuarios'
 import { Route as AuthenticatedAulaLessonIdRouteImport } from './routes/_authenticated/aula.$lessonId'
+import { Route as AuthenticatedAvaliacaoAssessmentIdRouteImport } from './routes/_authenticated/avaliacao.$assessmentId'
 import { Route as AuthenticatedCursoCourseIdRouteImport } from './routes/_authenticated/curso.$courseId'
 import { Route as AuthenticatedAdminAcompanhamentoIndexRouteImport } from './routes/_authenticated/admin/acompanhamento.index'
 import { Route as AuthenticatedAdminAcompanhamentoUserIdRouteImport } from './routes/_authenticated/admin/acompanhamento.$userId'
@@ -94,6 +95,12 @@ const AuthenticatedAulaLessonIdRoute =
     path: '/aula/$lessonId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAvaliacaoAssessmentIdRoute =
+  AuthenticatedAvaliacaoAssessmentIdRouteImport.update({
+    id: '/avaliacao/$assessmentId',
+    path: '/avaliacao/$assessmentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCursoCourseIdRoute =
   AuthenticatedCursoCourseIdRouteImport.update({
     id: '/curso/$courseId',
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/admin/arquivos': typeof AuthenticatedAdminArquivosRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
+  '/avaliacao/$assessmentId': typeof AuthenticatedAvaliacaoAssessmentIdRoute
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
   '/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/admin/arquivos': typeof AuthenticatedAdminArquivosRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
+  '/avaliacao/$assessmentId': typeof AuthenticatedAvaliacaoAssessmentIdRoute
   '/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
   '/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/arquivos': typeof AuthenticatedAdminArquivosRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/aula/$lessonId': typeof AuthenticatedAulaLessonIdRoute
+  '/_authenticated/avaliacao/$assessmentId': typeof AuthenticatedAvaliacaoAssessmentIdRoute
   '/_authenticated/curso/$courseId': typeof AuthenticatedCursoCourseIdRoute
   '/_authenticated/admin/acompanhamento/$userId': typeof AuthenticatedAdminAcompanhamentoUserIdRoute
   '/_authenticated/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/arquivos'
     | '/admin/usuarios'
     | '/aula/$lessonId'
+    | '/avaliacao/$assessmentId'
     | '/curso/$courseId'
     | '/admin/acompanhamento/$userId'
     | '/admin/aulas/$lessonId'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/admin/arquivos'
     | '/admin/usuarios'
     | '/aula/$lessonId'
+    | '/avaliacao/$assessmentId'
     | '/curso/$courseId'
     | '/admin/acompanhamento/$userId'
     | '/admin/aulas/$lessonId'
@@ -276,6 +288,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/arquivos'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/aula/$lessonId'
+    | '/_authenticated/avaliacao/$assessmentId'
     | '/_authenticated/curso/$courseId'
     | '/_authenticated/admin/acompanhamento/$userId'
     | '/_authenticated/admin/aulas/$lessonId'
@@ -377,6 +390,13 @@ declare module '@tanstack/react-router' {
       path: '/aula/$lessonId'
       fullPath: '/aula/$lessonId'
       preLoaderRoute: typeof AuthenticatedAulaLessonIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/avaliacao/$assessmentId': {
+      id: '/_authenticated/avaliacao/$assessmentId'
+      path: '/avaliacao/$assessmentId'
+      fullPath: '/avaliacao/$assessmentId'
+      preLoaderRoute: typeof AuthenticatedAvaliacaoAssessmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/curso/$courseId': {
@@ -489,6 +509,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMinhaTrilhaRoute: typeof AuthenticatedMinhaTrilhaRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedAulaLessonIdRoute: typeof AuthenticatedAulaLessonIdRoute
+  AuthenticatedAvaliacaoAssessmentIdRoute: typeof AuthenticatedAvaliacaoAssessmentIdRoute
   AuthenticatedCursoCourseIdRoute: typeof AuthenticatedCursoCourseIdRoute
 }
 
@@ -500,6 +521,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMinhaTrilhaRoute: AuthenticatedMinhaTrilhaRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedAulaLessonIdRoute: AuthenticatedAulaLessonIdRoute,
+  AuthenticatedAvaliacaoAssessmentIdRoute:
+    AuthenticatedAvaliacaoAssessmentIdRoute,
   AuthenticatedCursoCourseIdRoute: AuthenticatedCursoCourseIdRoute,
 }
 
