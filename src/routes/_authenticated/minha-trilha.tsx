@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
+import { TrackCompletionCard } from "@/components/lesson/track-completion-card";
 
 export const Route = createFileRoute("/_authenticated/minha-trilha")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/minha-trilha")({
 
 function MinhaTrilhaPage() {
   const { user } = useAuth();
+  const courses = useQuery({ queryKey: qk.courses, queryFn: api.listCourses });
   const modules = useQuery({ queryKey: qk.allModules, queryFn: () => api.listModules() });
   const lessons = useQuery({ queryKey: qk.allLessons, queryFn: () => api.listLessons() });
   const progress = useQuery({
@@ -54,6 +56,8 @@ function MinhaTrilhaPage() {
         </div>
         <Progress value={geral.percent} className="mt-3 h-2" />
       </div>
+
+      <TrackCompletionCard courseId={courses.data?.[0]?.id} />
 
       {modules.isLoading ? (
         <LoadingRows />
