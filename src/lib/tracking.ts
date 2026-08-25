@@ -67,21 +67,47 @@ export const statusLabel: Record<StudentStatus, string> = {
   concluido: "Concluído",
 };
 
+const TZ = "America/Sao_Paulo";
+
+/** Normaliza timestamps do banco (sem fuso explícito são UTC). */
+function parseDate(iso: string): Date {
+  const hasZone = /(?:z|[+-]\d{2}:?\d{2})$/i.test(iso.trim());
+  return new Date(hasZone ? iso : `${iso.replace(" ", "T")}Z`);
+}
+
+/** Data no formato AAAA-MM-DD no fuso de São Paulo. */
+function localDayKey(d: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
+/** Diferença em dias de calendário (fuso de São Paulo). */
 export function daysSince(iso: string | null): number | null {
   if (!iso) return null;
-  const diff = Date.now() - new Date(iso).getTime();
-  return Math.floor(diff / 86_400_000);
+  const then = Date.parse(`${localDayKey(parseDate(iso))}T00:00:00Z`);
+  const today = Date.parse(`${localDayKey(new Date())}T00:00:00Z`);
+  return Math.round((today - then) / 86_400_000);
 }
 
 export function formatLastAccess(iso: string | null): string {
   if (!iso) return "Nunca acessou";
-  const d = new Date(iso);
+  const d = parseDate(iso);
   const days = daysSince(iso) ?? 0;
-  if (days <= 0) return `Hoje às ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
-  if (days === 1) return "Ontem";
+  const hora = d.toLocaleTimeString("pt-BR", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  if (days <= 0) return `Hoje às ${hora}`;
+  if (days === 1) return `Ontem às ${hora}`;
   if (days < 30) return `Há ${String(days)} dias`;
-  return d.toLocaleDateString("pt-BR");
+  return d.toLocaleDateString("pt-BR", { timeZone: TZ });
 }
+
 
 /** Sinalização visual de inatividade (alunos concluídos nunca são inativos). */
 export function inactivityLevel(
