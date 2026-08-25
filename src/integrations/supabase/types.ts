@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          course_id: string | null
+          created_at: string
+          detalhe: string
+          group_id: string | null
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          course_id?: string | null
+          created_at?: string
+          detalhe?: string
+          group_id?: string | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          course_id?: string | null
+          created_at?: string
+          detalhe?: string
+          group_id?: string | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       assessment_attempts: {
         Row: {
           answers: Json
@@ -174,6 +207,30 @@ export type Database = {
           },
         ]
       }
+      categories: {
+        Row: {
+          created_at: string
+          descricao: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           certificate_code: string
@@ -239,35 +296,52 @@ export type Database = {
       courses: {
         Row: {
           capa_url: string | null
+          category_id: string | null
           created_at: string
           descricao: string
+          destaque: boolean
           id: string
           publicado: boolean
           status: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at: string
+          visibility: Database["public"]["Enums"]["course_visibility"]
         }
         Insert: {
           capa_url?: string | null
+          category_id?: string | null
           created_at?: string
           descricao?: string
+          destaque?: boolean
           id?: string
           publicado?: boolean
           status?: Database["public"]["Enums"]["content_status"]
           titulo: string
           updated_at?: string
+          visibility?: Database["public"]["Enums"]["course_visibility"]
         }
         Update: {
           capa_url?: string | null
+          category_id?: string | null
           created_at?: string
           descricao?: string
+          destaque?: boolean
           id?: string
           publicado?: boolean
           status?: Database["public"]["Enums"]["content_status"]
           titulo?: string
           updated_at?: string
+          visibility?: Database["public"]["Enums"]["course_visibility"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       files: {
         Row: {
@@ -315,6 +389,42 @@ export type Database = {
             columns: ["lesson_block_id"]
             isOneToOne: false
             referencedRelation: "lesson_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_courses: {
+        Row: {
+          course_id: string
+          created_at: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_courses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "user_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -400,6 +510,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      module_lessons: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          module_id: string
+          obrigatorio: boolean
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          module_id: string
+          obrigatorio?: boolean
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          module_id?: string
+          obrigatorio?: boolean
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_lessons_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_lessons_module_id_fkey"
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "modules"
@@ -575,6 +730,91 @@ export type Database = {
           },
         ]
       }
+      user_courses: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "user_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_groups: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -628,6 +868,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      can_access_course: { Args: { _course_id: string }; Returns: boolean }
       course_completion_status: {
         Args: { _course_id: string }
         Returns: {
@@ -678,6 +919,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "aluno"
       content_status: "rascunho" | "publicado" | "arquivado"
+      course_visibility: "publico" | "restrito"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -807,6 +1049,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "aluno"],
       content_status: ["rascunho", "publicado", "arquivado"],
+      course_visibility: ["publico", "restrito"],
     },
   },
 } as const
