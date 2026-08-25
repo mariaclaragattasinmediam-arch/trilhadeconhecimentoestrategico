@@ -7,13 +7,13 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Trilha de Conhecimento Estratégico – Ongoing" },
+      { title: "Trilha de Conhecimento Estratégico – InMediam" },
       {
         name: "description",
         content:
-          "Plataforma corporativa de treinamento da Ongoing. Trilhas estruturadas, aulas multimídia e acompanhamento de progresso individual.",
+          "Plataforma corporativa de treinamento da InMediam. Trilhas estruturadas, aulas multimídia e acompanhamento de progresso individual.",
       },
-      { property: "og:title", content: "Trilha de Conhecimento Estratégico – Ongoing" },
+      { property: "og:title", content: "Trilha de Conhecimento Estratégico – InMediam" },
       {
         property: "og:description",
         content: "Treinamento corporativo com trilhas, aulas multimídia e progresso individual.",
@@ -56,7 +56,7 @@ function Index() {
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <GraduationCap className="h-5 w-5" />
           </span>
-          <span className="font-display text-sm font-semibold">Trilha Ongoing</span>
+          <span className="font-display text-sm font-semibold">Trilha InMediam</span>
         </div>
         <Button asChild size="sm">
           <Link to="/auth">Entrar</Link>
@@ -71,7 +71,7 @@ function Index() {
             </p>
             <h1 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight sm:text-5xl">
               Trilha de Conhecimento Estratégico
-              <span className="block text-accent">Ongoing</span>
+              <span className="block text-accent">InMediam</span>
             </h1>
             <p className="mt-5 max-w-xl text-base text-primary-foreground/80">
               Um único ambiente para estruturar o conhecimento do time, distribuir conteúdo e
@@ -103,7 +103,7 @@ function Index() {
       </main>
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Ongoing — Trilha de Conhecimento Estratégico
+        © {new Date().getFullYear()} InMediam — Trilha de Conhecimento Estratégico
       </footer>
     </div>
   );
