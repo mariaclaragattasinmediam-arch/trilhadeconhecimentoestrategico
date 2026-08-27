@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminAvaliacoesAssessmentIdRouteImport } from './
 import { Route as AuthenticatedAdminCursosIndexRouteImport } from './routes/_authenticated/admin/cursos.index'
 import { Route as AuthenticatedAdminCursosCourseIdRouteImport } from './routes/_authenticated/admin/cursos.$courseId'
 import { Route as AuthenticatedAdminGruposIndexRouteImport } from './routes/_authenticated/admin/grupos.index'
+import { Route as AuthenticatedAdminGruposGroupIdRouteImport } from './routes/_authenticated/admin/grupos.$groupId'
 import { Route as AuthenticatedAdminModulosIndexRouteImport } from './routes/_authenticated/admin/modulos.index'
 import { Route as AuthenticatedAdminModulosModuleIdRouteImport } from './routes/_authenticated/admin/modulos.$moduleId'
 
@@ -177,6 +178,12 @@ const AuthenticatedAdminGruposIndexRoute =
     path: '/grupos/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminGruposGroupIdRoute =
+  AuthenticatedAdminGruposGroupIdRouteImport.update({
+    id: '/grupos/$groupId',
+    path: '/grupos/$groupId',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminModulosIndexRoute =
   AuthenticatedAdminModulosIndexRouteImport.update({
     id: '/modulos/',
@@ -210,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
   '/admin/avaliacoes/$assessmentId': typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   '/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
+  '/admin/grupos/$groupId': typeof AuthenticatedAdminGruposGroupIdRoute
   '/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
   '/admin/acompanhamento/': typeof AuthenticatedAdminAcompanhamentoIndexRoute
   '/admin/aulas/': typeof AuthenticatedAdminAulasIndexRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
   '/admin/avaliacoes/$assessmentId': typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   '/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
+  '/admin/grupos/$groupId': typeof AuthenticatedAdminGruposGroupIdRoute
   '/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
   '/admin/acompanhamento': typeof AuthenticatedAdminAcompanhamentoIndexRoute
   '/admin/aulas': typeof AuthenticatedAdminAulasIndexRoute
@@ -268,6 +277,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/aulas/$lessonId': typeof AuthenticatedAdminAulasLessonIdRoute
   '/_authenticated/admin/avaliacoes/$assessmentId': typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   '/_authenticated/admin/cursos/$courseId': typeof AuthenticatedAdminCursosCourseIdRoute
+  '/_authenticated/admin/grupos/$groupId': typeof AuthenticatedAdminGruposGroupIdRoute
   '/_authenticated/admin/modulos/$moduleId': typeof AuthenticatedAdminModulosModuleIdRoute
   '/_authenticated/admin/acompanhamento/': typeof AuthenticatedAdminAcompanhamentoIndexRoute
   '/_authenticated/admin/aulas/': typeof AuthenticatedAdminAulasIndexRoute
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/admin/aulas/$lessonId'
     | '/admin/avaliacoes/$assessmentId'
     | '/admin/cursos/$courseId'
+    | '/admin/grupos/$groupId'
     | '/admin/modulos/$moduleId'
     | '/admin/acompanhamento/'
     | '/admin/aulas/'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/admin/aulas/$lessonId'
     | '/admin/avaliacoes/$assessmentId'
     | '/admin/cursos/$courseId'
+    | '/admin/grupos/$groupId'
     | '/admin/modulos/$moduleId'
     | '/admin/acompanhamento'
     | '/admin/aulas'
@@ -355,6 +367,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/aulas/$lessonId'
     | '/_authenticated/admin/avaliacoes/$assessmentId'
     | '/_authenticated/admin/cursos/$courseId'
+    | '/_authenticated/admin/grupos/$groupId'
     | '/_authenticated/admin/modulos/$moduleId'
     | '/_authenticated/admin/acompanhamento/'
     | '/_authenticated/admin/aulas/'
@@ -548,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminGruposIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/grupos/$groupId': {
+      id: '/_authenticated/admin/grupos/$groupId'
+      path: '/grupos/$groupId'
+      fullPath: '/admin/grupos/$groupId'
+      preLoaderRoute: typeof AuthenticatedAdminGruposGroupIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/modulos/': {
       id: '/_authenticated/admin/modulos/'
       path: '/modulos'
@@ -572,6 +592,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAulasLessonIdRoute: typeof AuthenticatedAdminAulasLessonIdRoute
   AuthenticatedAdminAvaliacoesAssessmentIdRoute: typeof AuthenticatedAdminAvaliacoesAssessmentIdRoute
   AuthenticatedAdminCursosCourseIdRoute: typeof AuthenticatedAdminCursosCourseIdRoute
+  AuthenticatedAdminGruposGroupIdRoute: typeof AuthenticatedAdminGruposGroupIdRoute
   AuthenticatedAdminModulosModuleIdRoute: typeof AuthenticatedAdminModulosModuleIdRoute
   AuthenticatedAdminAcompanhamentoIndexRoute: typeof AuthenticatedAdminAcompanhamentoIndexRoute
   AuthenticatedAdminAulasIndexRoute: typeof AuthenticatedAdminAulasIndexRoute
@@ -592,6 +613,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminAvaliacoesAssessmentIdRoute,
     AuthenticatedAdminCursosCourseIdRoute:
       AuthenticatedAdminCursosCourseIdRoute,
+    AuthenticatedAdminGruposGroupIdRoute: AuthenticatedAdminGruposGroupIdRoute,
     AuthenticatedAdminModulosModuleIdRoute:
       AuthenticatedAdminModulosModuleIdRoute,
     AuthenticatedAdminAcompanhamentoIndexRoute:
