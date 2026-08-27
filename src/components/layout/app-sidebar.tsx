@@ -9,6 +9,7 @@ import {
   FileStack,
   Route as RouteIcon,
   Users,
+  Users2,
   PlaySquare,
   ClipboardList,
   Award,
@@ -43,6 +44,7 @@ const adminItems = [
   { title: "Avaliações", url: "/admin/avaliacoes", icon: ClipboardList },
   { title: "Acompanhamento", url: "/admin/acompanhamento", icon: LineChart },
   { title: "Arquivos", url: "/admin/arquivos", icon: FileStack },
+  { title: "Grupos", url: "/admin/grupos", icon: Users2 },
   { title: "Usuários", url: "/admin/usuarios", icon: Users },
 ];
 
