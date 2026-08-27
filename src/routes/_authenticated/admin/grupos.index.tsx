@@ -55,7 +55,7 @@ function GruposPage() {
   const cursos = useQuery({ queryKey: ["access", "all-group-courses"], queryFn: listAllGroupCourses });
 
   const criar = useMutation({
-    mutationFn: () => createGroup({ name: nome.trim(), descricao: descricao.trim() } as never),
+    mutationFn: () => createGroup({ name: nome.trim(), description: descricao.trim() }),
     onSuccess: () => {
       setAberto(false);
       setNome("");
