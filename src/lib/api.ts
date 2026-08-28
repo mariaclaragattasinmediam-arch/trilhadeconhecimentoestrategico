@@ -114,6 +114,7 @@ export const qk = {
   allModules: ["modules", "all"] as const,
   lessons: (moduleId: string) => ["lessons", moduleId] as const,
   allLessons: ["lessons", "all"] as const,
+  moduleLinks: ["module-lessons", "all"] as const,
   lesson: (id: string) => ["lesson", id] as const,
   blocks: (lessonId: string) => ["blocks", lessonId] as const,
   files: ["files"] as const,
