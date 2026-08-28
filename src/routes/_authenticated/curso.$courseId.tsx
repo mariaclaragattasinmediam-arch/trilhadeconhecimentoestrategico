@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Circle, Layers, PlayCircle } from "lucide-react";
+import { CheckCircle2, Circle, Layers, Lock, PlayCircle } from "lucide-react";
 import { api, computeProgress, qk } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
@@ -16,10 +16,12 @@ import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-pa
 export const Route = createFileRoute("/_authenticated/curso/$courseId")({
   head: () => ({
     meta: [
-      { title: "Curso — Trilha Ongoing" },
-      { name: "description", content: "Módulos e aulas do curso na plataforma Ongoing." },
-      { property: "og:title", content: "Curso — Trilha Ongoing" },
-      { property: "og:description", content: "Módulos e aulas do curso na plataforma Ongoing." },
+      { title: "Curso — Trilha InMediam" },
+      { name: "description", content: "Módulos e aulas do curso na plataforma InMediam." },
+      { property: "og:title", content: "Curso — Trilha InMediam" },
+      { property: "og:description", content: "Módulos e aulas do curso na plataforma InMediam." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CursoPage,
@@ -35,6 +37,7 @@ function CursoPage() {
     queryFn: () => api.listModules(courseId),
   });
   const lessons = useQuery({ queryKey: qk.allLessons, queryFn: () => api.listLessons() });
+  const links = useQuery({ queryKey: qk.moduleLinks, queryFn: () => api.listModuleLinks() });
   const progress = useQuery({
     queryKey: [...qk.progress, user?.id],
     queryFn: () => api.listProgress(user!.id),
@@ -46,10 +49,35 @@ function CursoPage() {
   const prog = progress.data ?? [];
   const doneIds = new Set(prog.filter((p) => p.completed).map((p) => p.lesson_id));
 
+  const lessonsOf = (moduleId: string) =>
+    (links.data ?? [])
+      .filter((l) => l.module_id === moduleId)
+      .sort((a, b) => a.ordem - b.ordem)
+      .map((l) => allLessons.find((x) => x.id === l.lesson_id))
+      .filter((l): l is NonNullable<typeof l> => Boolean(l));
+
   const geral = computeProgress(
-    allLessons.filter((l) => mods.some((m) => m.id === l.module_id)).map((l) => l.id),
+    mods.flatMap((m) => lessonsOf(m.id).map((l) => l.id)),
     prog,
   );
+
+  // RLS impede a leitura de cursos sem permissão: o curso volta vazio.
+  if (!course.isLoading && !course.data) {
+    return (
+      <div className="mx-auto max-w-xl py-10">
+        <EmptyState
+          icon={Lock}
+          title="Acesso restrito"
+          description="Você não possui acesso a este curso. Entre em contato com o administrador para solicitar acesso."
+          action={
+            <Button asChild>
+              <Link to="/dashboard">Voltar para meus cursos</Link>
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -75,8 +103,11 @@ function CursoPage() {
       ) : (
         <Accordion type="multiple" className="space-y-3">
           {mods.map((m) => {
-            const ls = allLessons.filter((l) => l.module_id === m.id);
-            const stats = computeProgress(ls.map((l) => l.id), prog);
+            const ls = lessonsOf(m.id);
+            const stats = computeProgress(
+              ls.map((l) => l.id),
+              prog,
+            );
             return (
               <AccordionItem
                 key={m.id}
@@ -86,17 +117,15 @@ function CursoPage() {
                 <AccordionTrigger className="py-4 hover:no-underline">
                   <div className="flex w-full items-center justify-between gap-4 pr-3">
                     <div className="min-w-0 text-left">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        Módulo {m.ordem}
+                      <p className="truncate font-medium">{m.titulo}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {stats.completed}/{stats.total} aulas · {stats.percent}%
                       </p>
-                      <p className="truncate text-sm font-semibold">{m.titulo}</p>
                     </div>
-                    <Badge variant={stats.percent === 100 ? "default" : "secondary"}>
-                      {stats.completed}/{stats.total}
-                    </Badge>
+                    <Progress value={stats.percent} className="hidden h-1.5 w-32 sm:block" />
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-4">
+                <AccordionContent className="pb-5">
                   <p className="mb-3 text-sm text-muted-foreground">{m.descricao}</p>
                   {ls.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Nenhuma aula cadastrada ainda.</p>

@@ -44,6 +44,9 @@ export interface Course {
   publicado: boolean;
   status: ContentStatus;
   created_at: string;
+  visibility?: "publico" | "restrito";
+  destaque?: boolean;
+  category_id?: string | null;
 }
 
 export interface Module {
@@ -111,6 +114,7 @@ export const qk = {
   allModules: ["modules", "all"] as const,
   lessons: (moduleId: string) => ["lessons", moduleId] as const,
   allLessons: ["lessons", "all"] as const,
+  moduleLinks: ["module-lessons", "all"] as const,
   lesson: (id: string) => ["lesson", id] as const,
   blocks: (lessonId: string) => ["blocks", lessonId] as const,
   files: ["files"] as const,
@@ -143,6 +147,15 @@ export const api = {
     let q = supabase.from("lessons").select("*").order("ordem", { ascending: true });
     if (moduleId) q = q.eq("module_id", moduleId);
     return unwrap<Lesson[]>(await q);
+  },
+  /** Associações módulo ↔ aula (conteúdo reutilizável). */
+  async listModuleLinks() {
+    return unwrap<{ module_id: string; lesson_id: string; ordem: number; obrigatorio: boolean }[]>(
+      await supabase
+        .from("module_lessons")
+        .select("module_id, lesson_id, ordem, obrigatorio")
+        .order("ordem", { ascending: true }),
+    );
   },
   async getLesson(id: string) {
     const res = await supabase.from("lessons").select("*").eq("id", id).maybeSingle();
