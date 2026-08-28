@@ -44,6 +44,9 @@ export interface Course {
   publicado: boolean;
   status: ContentStatus;
   created_at: string;
+  visibility?: "publico" | "restrito";
+  destaque?: boolean;
+  category_id?: string | null;
 }
 
 export interface Module {
