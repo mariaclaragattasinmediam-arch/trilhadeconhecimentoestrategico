@@ -148,6 +148,15 @@ export const api = {
     if (moduleId) q = q.eq("module_id", moduleId);
     return unwrap<Lesson[]>(await q);
   },
+  /** Associações módulo ↔ aula (conteúdo reutilizável). */
+  async listModuleLinks() {
+    return unwrap<{ module_id: string; lesson_id: string; ordem: number; obrigatorio: boolean }[]>(
+      await supabase
+        .from("module_lessons")
+        .select("module_id, lesson_id, ordem, obrigatorio")
+        .order("ordem", { ascending: true }),
+    );
+  },
   async getLesson(id: string) {
     const res = await supabase.from("lessons").select("*").eq("id", id).maybeSingle();
     if (res.error) throw new Error(res.error.message);
