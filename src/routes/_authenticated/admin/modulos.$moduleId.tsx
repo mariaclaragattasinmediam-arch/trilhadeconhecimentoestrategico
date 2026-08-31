@@ -154,6 +154,8 @@ function AdminModulo() {
   const queryClient = useQueryClient();
   const [ordem, setOrdem] = useState<Lesson[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bibliotecaOpen, setBibliotecaOpen] = useState(false);
+  const [buscaBiblioteca, setBuscaBiblioteca] = useState("");
   const [editando, setEditando] = useState<Lesson | null>(null);
   const [dados, setDados] = useState({
     titulo: "",
@@ -170,8 +172,14 @@ function AdminModulo() {
   });
 
   const lessons = useQuery({
-    queryKey: cmsKeys.lessons(moduleId),
-    queryFn: () => listLessons(moduleId),
+    queryKey: reuseKeys.links(moduleId),
+    queryFn: () => lessonsOfModule(moduleId),
+  });
+  const usos = useQuery({ queryKey: reuseKeys.usageAll, queryFn: lessonUsageMap });
+  const biblioteca = useQuery({
+    queryKey: [...reuseKeys.library, buscaBiblioteca],
+    queryFn: () => searchLessonLibrary(buscaBiblioteca),
+    enabled: bibliotecaOpen,
   });
   const blocos = useQuery({
     queryKey: ["cms", "block-counts", moduleId, (lessons.data ?? []).length],
