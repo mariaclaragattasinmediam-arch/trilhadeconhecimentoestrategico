@@ -202,7 +202,9 @@ function AdminModulo() {
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["cms"] });
+    void queryClient.invalidateQueries({ queryKey: ["reuse"] });
     void queryClient.invalidateQueries({ queryKey: ["lessons"] });
+    void queryClient.invalidateQueries({ queryKey: ["module-lessons"] });
     void queryClient.invalidateQueries({ queryKey: ["modules"] });
   };
 
@@ -219,7 +221,7 @@ function AdminModulo() {
     mutationFn: (input: LessonInput) =>
       editando ? updateLesson(editando.id, input) : createLesson(moduleId, input),
     onSuccess: () => {
-      toast.success(editando ? "Aula atualizada." : "Aula criada.");
+      toast.success(editando ? "Conteúdo atualizado." : "Conteúdo criado.");
       setDialogOpen(false);
       setEditando(null);
       invalidate();
@@ -230,23 +232,42 @@ function AdminModulo() {
   const duplicar = useMutation({
     mutationFn: (id: string) => duplicateLesson(id),
     onSuccess: () => {
-      toast.success("Aula duplicada.");
+      toast.success("Conteúdo duplicado.");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const vincular = useMutation({
+    mutationFn: (lessonId: string) => attachLesson(moduleId, lessonId),
+    onSuccess: () => {
+      toast.success("Conteúdo adicionado ao módulo.");
+      setBibliotecaOpen(false);
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const desvincular = useMutation({
+    mutationFn: (lessonId: string) => detachLesson(moduleId, lessonId),
+    onSuccess: () => {
+      toast.success("Conteúdo removido deste módulo (segue disponível na biblioteca).");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const excluir = useMutation({
-    mutationFn: deleteLesson,
+    mutationFn: deleteLessonPermanently,
     onSuccess: () => {
-      toast.success("Aula excluída.");
+      toast.success("Conteúdo excluído definitivamente.");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const reordenar = useMutation({
-    mutationFn: reorderLessons,
+    mutationFn: (ids: string[]) => reorderModuleLessons(moduleId, ids),
     onSuccess: invalidate,
     onError: (e: Error) => toast.error(e.message),
   });
