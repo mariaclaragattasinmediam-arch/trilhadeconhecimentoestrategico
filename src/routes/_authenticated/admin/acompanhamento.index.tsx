@@ -192,6 +192,34 @@ function AcompanhamentoPage() {
     }));
   }, [data]);
 
+  const setores = useMemo(() => {
+    const groupList = grupos.data ?? [];
+    const membershipList = membros.data ?? [];
+    const byId = new Map(data.map((a) => [a.userId, a]));
+    const statsFor = (members: StudentOverview[]) => {
+      const total = members.length;
+      const media =
+        total === 0 ? 0 : Math.round(members.reduce((s, m) => s + m.percent, 0) / total);
+      return {
+        total,
+        media,
+        nao: members.filter((m) => m.status === "nao_iniciado").length,
+        andamento: members.filter((m) => m.status === "em_andamento").length,
+        concluido: members.filter((m) => m.status === "concluido").length,
+      };
+    };
+    const emGrupo = new Set(membershipList.map((m) => m.user_id));
+    const rows = groupList.map((g) => {
+      const ids = membershipList.filter((m) => m.group_id === g.id).map((m) => m.user_id);
+      const members = ids
+        .map((id) => byId.get(id))
+        .filter((a): a is StudentOverview => Boolean(a));
+      return { id: g.id, nome: g.name, ...statsFor(members) };
+    });
+    const semSetor = data.filter((a) => !emGrupo.has(a.userId));
+    return { rows, semSetor: { nome: "Sem setor", ...statsFor(semSetor) } };
+  }, [grupos.data, membros.data, data]);
+
   const destaques = useMemo(() => {
     const iniciados = data.filter((a) => a.percent > 0);
     const maior = [...data].sort((a, b) => b.percent - a.percent)[0] ?? null;
