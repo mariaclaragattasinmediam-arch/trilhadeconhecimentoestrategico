@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { listAllMemberships, listGroups } from "@/lib/access";
 import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StudentStatusBadge } from "@/components/admin/student-status";
 import { PageHeader, EmptyState } from "@/components/common/page-parts";
@@ -117,6 +118,8 @@ function inAcesso(iso: string | null, f: string) {
 function AcompanhamentoPage() {
   const alunos = useQuery({ queryKey: trackingKeys.overview, queryFn: tracking.listStudents });
   const modulos = useQuery({ queryKey: trackingKeys.modules, queryFn: tracking.moduleAverages });
+  const grupos = useQuery({ queryKey: ["access", "groups"], queryFn: listGroups });
+  const membros = useQuery({ queryKey: ["access", "all-memberships"], queryFn: listAllMemberships });
 
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("todos");
@@ -188,6 +191,34 @@ function AcompanhamentoPage() {
       alunos: data.filter((a) => b.test(a.percent)).length,
     }));
   }, [data]);
+
+  const setores = useMemo(() => {
+    const groupList = grupos.data ?? [];
+    const membershipList = membros.data ?? [];
+    const byId = new Map(data.map((a) => [a.userId, a]));
+    const statsFor = (members: StudentOverview[]) => {
+      const total = members.length;
+      const media =
+        total === 0 ? 0 : Math.round(members.reduce((s, m) => s + m.percent, 0) / total);
+      return {
+        total,
+        media,
+        nao: members.filter((m) => m.status === "nao_iniciado").length,
+        andamento: members.filter((m) => m.status === "em_andamento").length,
+        concluido: members.filter((m) => m.status === "concluido").length,
+      };
+    };
+    const emGrupo = new Set(membershipList.map((m) => m.user_id));
+    const rows = groupList.map((g) => {
+      const ids = membershipList.filter((m) => m.group_id === g.id).map((m) => m.user_id);
+      const members = ids
+        .map((id) => byId.get(id))
+        .filter((a): a is StudentOverview => Boolean(a));
+      return { id: g.id, nome: g.name, ...statsFor(members) };
+    });
+    const semSetor = data.filter((a) => !emGrupo.has(a.userId));
+    return { rows, semSetor: { nome: "Sem setor", ...statsFor(semSetor) } };
+  }, [grupos.data, membros.data, data]);
 
   const destaques = useMemo(() => {
     const iniciados = data.filter((a) => a.percent > 0);
@@ -398,6 +429,79 @@ function AcompanhamentoPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="h-4 w-4" /> Progresso por setor
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {carregando || grupos.isLoading || membros.isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-28 rounded-xl" />
+              ))}
+            </div>
+          ) : setores.rows.length === 0 && setores.semSetor.total === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhum setor cadastrado. Crie grupos em <Link to="/admin/grupos" className="text-primary underline">Admin → Grupos</Link> para acompanhar por setor.
+            </p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {[...setores.rows]
+                .sort((a, b) => b.media - a.media)
+                .map((s) => (
+                  <div key={s.id} className="space-y-3 rounded-xl border p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        to="/admin/grupos/$groupId"
+                        params={{ groupId: s.id }}
+                        className="truncate font-medium hover:text-primary"
+                      >
+                        {s.nome}
+                      </Link>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {s.total} {s.total === 1 ? "aluno" : "alunos"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={s.media} className="h-2 flex-1" />
+                      <span className="w-10 text-right text-sm font-semibold">{s.media}%</span>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                      <span>{s.nao} não iniciaram</span>
+                      <span>{s.andamento} em andamento</span>
+                      <span>{s.concluido} concluídos</span>
+                    </div>
+                  </div>
+                ))}
+              {setores.semSetor.total > 0 ? (
+                <div className="space-y-3 rounded-xl border border-dashed p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate font-medium text-muted-foreground">Sem setor</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {setores.semSetor.total}{" "}
+                      {setores.semSetor.total === 1 ? "aluno" : "alunos"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Progress value={setores.semSetor.media} className="h-2 flex-1" />
+                    <span className="w-10 text-right text-sm font-semibold">
+                      {setores.semSetor.media}%
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span>{setores.semSetor.nao} não iniciaram</span>
+                    <span>{setores.semSetor.andamento} em andamento</span>
+                    <span>{setores.semSetor.concluido} concluídos</span>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="gap-4">
