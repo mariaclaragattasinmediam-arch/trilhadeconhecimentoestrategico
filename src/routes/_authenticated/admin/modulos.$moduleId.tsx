@@ -524,6 +524,72 @@ function AdminModulo() {
         saving={salvarAula.isPending}
         onSubmit={(input) => salvarAula.mutate(input)}
       />
+
+      <Dialog open={bibliotecaOpen} onOpenChange={setBibliotecaOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Adicionar conteúdo existente</DialogTitle>
+            <DialogDescription>
+              O mesmo conteúdo pode ser usado em vários módulos e cursos. Alterações refletem em
+              todos os lugares.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9"
+              placeholder="Buscar por título ou descrição"
+              value={buscaBiblioteca}
+              onChange={(e) => setBuscaBiblioteca(e.target.value)}
+            />
+          </div>
+          <div className="max-h-80 space-y-2 overflow-y-auto">
+            {biblioteca.isLoading ? (
+              <LoadingRows />
+            ) : (biblioteca.data ?? []).length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Nenhum conteúdo encontrado.
+              </p>
+            ) : (
+              (biblioteca.data ?? []).map((l) => {
+                const jaNoModulo = ordem.some((o) => o.id === l.id);
+                const cursosDoConteudo = distinctCourses(usos.data?.get(l.id));
+                return (
+                  <div
+                    key={l.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border p-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-medium">{l.titulo}</p>
+                        <StatusBadge status={l.status} />
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {cursosDoConteudo.length > 0
+                          ? `Usado em: ${cursosDoConteudo.map((c) => c.courseTitulo).join(", ")}`
+                          : "Ainda não utilizado"}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={jaNoModulo ? "outline" : "default"}
+                      disabled={jaNoModulo || vincular.isPending}
+                      onClick={() => vincular.mutate(l.id)}
+                    >
+                      {jaNoModulo ? "Já adicionado" : "Adicionar"}
+                    </Button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBibliotecaOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
