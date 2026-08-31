@@ -7,11 +7,14 @@ import {
   ChevronUp,
   Copy,
   GripVertical,
+  Library,
+  Link2Off,
   Loader2,
   MoreHorizontal,
   Pencil,
   PlaySquare,
   Plus,
+  Search,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,22 +22,31 @@ import type { ContentStatus, Lesson } from "@/lib/api";
 import {
   cmsKeys,
   createLesson,
-  deleteLesson,
   duplicateLesson,
   getCourse,
   getModule,
   listBlockCounts,
-  listLessons,
-  reorderLessons,
   updateLesson,
   updateModule,
   type LessonInput,
 } from "@/lib/cms";
+import {
+  attachLesson,
+  deleteLessonPermanently,
+  detachLesson,
+  distinctCourses,
+  lessonUsageMap,
+  lessonsOfModule,
+  reorderModuleLessons,
+  reuseKeys,
+  searchLessonLibrary,
+} from "@/lib/reuse";
 import { move, useDragSort } from "@/components/admin/sortable";
 import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -142,6 +154,8 @@ function AdminModulo() {
   const queryClient = useQueryClient();
   const [ordem, setOrdem] = useState<Lesson[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bibliotecaOpen, setBibliotecaOpen] = useState(false);
+  const [buscaBiblioteca, setBuscaBiblioteca] = useState("");
   const [editando, setEditando] = useState<Lesson | null>(null);
   const [dados, setDados] = useState({
     titulo: "",
@@ -158,8 +172,14 @@ function AdminModulo() {
   });
 
   const lessons = useQuery({
-    queryKey: cmsKeys.lessons(moduleId),
-    queryFn: () => listLessons(moduleId),
+    queryKey: reuseKeys.links(moduleId),
+    queryFn: () => lessonsOfModule(moduleId),
+  });
+  const usos = useQuery({ queryKey: reuseKeys.usageAll, queryFn: lessonUsageMap });
+  const biblioteca = useQuery({
+    queryKey: [...reuseKeys.library, buscaBiblioteca],
+    queryFn: () => searchLessonLibrary(buscaBiblioteca),
+    enabled: bibliotecaOpen,
   });
   const blocos = useQuery({
     queryKey: ["cms", "block-counts", moduleId, (lessons.data ?? []).length],
@@ -182,7 +202,9 @@ function AdminModulo() {
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["cms"] });
+    void queryClient.invalidateQueries({ queryKey: ["reuse"] });
     void queryClient.invalidateQueries({ queryKey: ["lessons"] });
+    void queryClient.invalidateQueries({ queryKey: ["module-lessons"] });
     void queryClient.invalidateQueries({ queryKey: ["modules"] });
   };
 
@@ -199,7 +221,7 @@ function AdminModulo() {
     mutationFn: (input: LessonInput) =>
       editando ? updateLesson(editando.id, input) : createLesson(moduleId, input),
     onSuccess: () => {
-      toast.success(editando ? "Aula atualizada." : "Aula criada.");
+      toast.success(editando ? "Conteúdo atualizado." : "Conteúdo criado.");
       setDialogOpen(false);
       setEditando(null);
       invalidate();
@@ -210,23 +232,42 @@ function AdminModulo() {
   const duplicar = useMutation({
     mutationFn: (id: string) => duplicateLesson(id),
     onSuccess: () => {
-      toast.success("Aula duplicada.");
+      toast.success("Conteúdo duplicado.");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const vincular = useMutation({
+    mutationFn: (lessonId: string) => attachLesson(moduleId, lessonId),
+    onSuccess: () => {
+      toast.success("Conteúdo adicionado ao módulo.");
+      setBibliotecaOpen(false);
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const desvincular = useMutation({
+    mutationFn: (lessonId: string) => detachLesson(moduleId, lessonId),
+    onSuccess: () => {
+      toast.success("Conteúdo removido deste módulo (segue disponível na biblioteca).");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const excluir = useMutation({
-    mutationFn: deleteLesson,
+    mutationFn: deleteLessonPermanently,
     onSuccess: () => {
-      toast.success("Aula excluída.");
+      toast.success("Conteúdo excluído definitivamente.");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const reordenar = useMutation({
-    mutationFn: reorderLessons,
+    mutationFn: (ids: string[]) => reorderModuleLessons(moduleId, ids),
     onSuccess: invalidate,
     onError: (e: Error) => toast.error(e.message),
   });
@@ -325,19 +366,33 @@ function AdminModulo() {
         </Button>
       </section>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Aulas</h2>
-          <p className="text-sm text-muted-foreground">Arraste ou use as setas para reordenar.</p>
+          <h2 className="text-lg font-semibold">Conteúdos</h2>
+          <p className="text-sm text-muted-foreground">
+            Arraste ou use as setas para reordenar. Conteúdos podem ser reutilizados em outros
+            cursos.
+          </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditando(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" /> Nova aula
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setBuscaBiblioteca("");
+              setBibliotecaOpen(true);
+            }}
+          >
+            <Library className="h-4 w-4" /> Adicionar conteúdo existente
+          </Button>
+          <Button
+            onClick={() => {
+              setEditando(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" /> Novo conteúdo
+          </Button>
+        </div>
       </div>
 
       {lessons.isLoading ? (
@@ -345,13 +400,14 @@ function AdminModulo() {
       ) : ordem.length === 0 ? (
         <EmptyState
           icon={PlaySquare}
-          title="Nenhuma aula ainda"
-          description="Crie a primeira aula deste módulo."
+          title="Nenhum conteúdo ainda"
+          description="Crie um novo conteúdo ou adicione um já existente da biblioteca."
         />
       ) : (
         <ul className="space-y-3">
           {ordem.map((l, index) => {
             const dragProps = getItemProps(index);
+            const cursosDoConteudo = distinctCourses(usos.data?.get(l.id));
             return (
               <li
                 key={l.id}
@@ -370,10 +426,18 @@ function AdminModulo() {
                         {index + 1}. {l.titulo}
                       </Link>
                       <StatusBadge status={l.status} />
+                      {cursosDoConteudo.length > 1 ? (
+                        <Badge variant="secondary">
+                          Usado em {cursosDoConteudo.length} cursos
+                        </Badge>
+                      ) : null}
                     </div>
                     <p className="line-clamp-1 text-sm text-muted-foreground">{l.descricao || "—"}</p>
                     <p className="text-xs text-muted-foreground">
                       {blocos.data?.get(l.id) ?? 0} bloco(s)
+                      {cursosDoConteudo.length > 1
+                        ? ` · ${cursosDoConteudo.map((c) => c.courseTitulo).join(", ")}`
+                        : ""}
                     </p>
                   </div>
                 </div>
@@ -420,18 +484,22 @@ function AdminModulo() {
                         <Copy className="h-4 w-4" /> Duplicar
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => desvincular.mutate(l.id)}>
+                        <Link2Off className="h-4 w-4" /> Remover deste módulo
+                      </DropdownMenuItem>
                       <ConfirmDelete
-                        title={`Excluir "${l.titulo}"?`}
-                        description="Todos os blocos desta aula serão excluídos."
+                        title={`Excluir "${l.titulo}" definitivamente?`}
+                        description="O conteúdo e seus blocos serão excluídos de toda a plataforma. Só é possível quando ele não está em nenhum módulo."
                         onConfirm={() => excluir.mutate(l.id)}
                       >
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onSelect={(e) => e.preventDefault()}
                         >
-                          <Trash2 className="h-4 w-4" /> Excluir
+                          <Trash2 className="h-4 w-4" /> Excluir definitivamente
                         </DropdownMenuItem>
                       </ConfirmDelete>
+
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -456,6 +524,72 @@ function AdminModulo() {
         saving={salvarAula.isPending}
         onSubmit={(input) => salvarAula.mutate(input)}
       />
+
+      <Dialog open={bibliotecaOpen} onOpenChange={setBibliotecaOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Adicionar conteúdo existente</DialogTitle>
+            <DialogDescription>
+              O mesmo conteúdo pode ser usado em vários módulos e cursos. Alterações refletem em
+              todos os lugares.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9"
+              placeholder="Buscar por título ou descrição"
+              value={buscaBiblioteca}
+              onChange={(e) => setBuscaBiblioteca(e.target.value)}
+            />
+          </div>
+          <div className="max-h-80 space-y-2 overflow-y-auto">
+            {biblioteca.isLoading ? (
+              <LoadingRows />
+            ) : (biblioteca.data ?? []).length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Nenhum conteúdo encontrado.
+              </p>
+            ) : (
+              (biblioteca.data ?? []).map((l) => {
+                const jaNoModulo = ordem.some((o) => o.id === l.id);
+                const cursosDoConteudo = distinctCourses(usos.data?.get(l.id));
+                return (
+                  <div
+                    key={l.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border p-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-medium">{l.titulo}</p>
+                        <StatusBadge status={l.status} />
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {cursosDoConteudo.length > 0
+                          ? `Usado em: ${cursosDoConteudo.map((c) => c.courseTitulo).join(", ")}`
+                          : "Ainda não utilizado"}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={jaNoModulo ? "outline" : "default"}
+                      disabled={jaNoModulo || vincular.isPending}
+                      onClick={() => vincular.mutate(l.id)}
+                    >
+                      {jaNoModulo ? "Já adicionado" : "Adicionar"}
+                    </Button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBibliotecaOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
