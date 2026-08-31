@@ -7,11 +7,14 @@ import {
   ChevronUp,
   Copy,
   GripVertical,
+  Library,
+  Link2Off,
   Loader2,
   MoreHorizontal,
   Pencil,
   PlaySquare,
   Plus,
+  Search,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,22 +22,31 @@ import type { ContentStatus, Lesson } from "@/lib/api";
 import {
   cmsKeys,
   createLesson,
-  deleteLesson,
   duplicateLesson,
   getCourse,
   getModule,
   listBlockCounts,
-  listLessons,
-  reorderLessons,
   updateLesson,
   updateModule,
   type LessonInput,
 } from "@/lib/cms";
+import {
+  attachLesson,
+  deleteLessonPermanently,
+  detachLesson,
+  distinctCourses,
+  lessonUsageMap,
+  lessonsOfModule,
+  reorderModuleLessons,
+  reuseKeys,
+  searchLessonLibrary,
+} from "@/lib/reuse";
 import { move, useDragSort } from "@/components/admin/sortable";
 import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StatusBadge, StatusSelect } from "@/components/admin/status";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { EmptyState, LoadingRows, PageHeader } from "@/components/common/page-parts";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
