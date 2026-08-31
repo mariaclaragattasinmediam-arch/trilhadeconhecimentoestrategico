@@ -484,18 +484,22 @@ function AdminModulo() {
                         <Copy className="h-4 w-4" /> Duplicar
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => desvincular.mutate(l.id)}>
+                        <Link2Off className="h-4 w-4" /> Remover deste módulo
+                      </DropdownMenuItem>
                       <ConfirmDelete
-                        title={`Excluir "${l.titulo}"?`}
-                        description="Todos os blocos desta aula serão excluídos."
+                        title={`Excluir "${l.titulo}" definitivamente?`}
+                        description="O conteúdo e seus blocos serão excluídos de toda a plataforma. Só é possível quando ele não está em nenhum módulo."
                         onConfirm={() => excluir.mutate(l.id)}
                       >
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onSelect={(e) => e.preventDefault()}
                         >
-                          <Trash2 className="h-4 w-4" /> Excluir
+                          <Trash2 className="h-4 w-4" /> Excluir definitivamente
                         </DropdownMenuItem>
                       </ConfirmDelete>
+
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
