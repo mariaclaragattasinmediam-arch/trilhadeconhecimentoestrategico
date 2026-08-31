@@ -366,19 +366,33 @@ function AdminModulo() {
         </Button>
       </section>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Aulas</h2>
-          <p className="text-sm text-muted-foreground">Arraste ou use as setas para reordenar.</p>
+          <h2 className="text-lg font-semibold">Conteúdos</h2>
+          <p className="text-sm text-muted-foreground">
+            Arraste ou use as setas para reordenar. Conteúdos podem ser reutilizados em outros
+            cursos.
+          </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditando(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" /> Nova aula
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setBuscaBiblioteca("");
+              setBibliotecaOpen(true);
+            }}
+          >
+            <Library className="h-4 w-4" /> Adicionar conteúdo existente
+          </Button>
+          <Button
+            onClick={() => {
+              setEditando(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" /> Novo conteúdo
+          </Button>
+        </div>
       </div>
 
       {lessons.isLoading ? (
@@ -386,8 +400,8 @@ function AdminModulo() {
       ) : ordem.length === 0 ? (
         <EmptyState
           icon={PlaySquare}
-          title="Nenhuma aula ainda"
-          description="Crie a primeira aula deste módulo."
+          title="Nenhum conteúdo ainda"
+          description="Crie um novo conteúdo ou adicione um já existente da biblioteca."
         />
       ) : (
         <ul className="space-y-3">
