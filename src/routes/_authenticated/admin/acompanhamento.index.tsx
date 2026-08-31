@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { listAllMemberships, listGroups } from "@/lib/access";
 import { AdminBreadcrumbs } from "@/components/admin/breadcrumbs";
 import { StudentStatusBadge } from "@/components/admin/student-status";
 import { PageHeader, EmptyState } from "@/components/common/page-parts";
@@ -117,6 +118,8 @@ function inAcesso(iso: string | null, f: string) {
 function AcompanhamentoPage() {
   const alunos = useQuery({ queryKey: trackingKeys.overview, queryFn: tracking.listStudents });
   const modulos = useQuery({ queryKey: trackingKeys.modules, queryFn: tracking.moduleAverages });
+  const grupos = useQuery({ queryKey: ["access", "groups"], queryFn: listGroups });
+  const membros = useQuery({ queryKey: ["access", "all-memberships"], queryFn: listAllMemberships });
 
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("todos");
