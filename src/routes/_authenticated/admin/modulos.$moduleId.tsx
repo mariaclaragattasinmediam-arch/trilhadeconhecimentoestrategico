@@ -407,6 +407,7 @@ function AdminModulo() {
         <ul className="space-y-3">
           {ordem.map((l, index) => {
             const dragProps = getItemProps(index);
+            const cursosDoConteudo = distinctCourses(usos.data?.get(l.id));
             return (
               <li
                 key={l.id}
@@ -425,10 +426,18 @@ function AdminModulo() {
                         {index + 1}. {l.titulo}
                       </Link>
                       <StatusBadge status={l.status} />
+                      {cursosDoConteudo.length > 1 ? (
+                        <Badge variant="secondary">
+                          Usado em {cursosDoConteudo.length} cursos
+                        </Badge>
+                      ) : null}
                     </div>
                     <p className="line-clamp-1 text-sm text-muted-foreground">{l.descricao || "—"}</p>
                     <p className="text-xs text-muted-foreground">
                       {blocos.data?.get(l.id) ?? 0} bloco(s)
+                      {cursosDoConteudo.length > 1
+                        ? ` · ${cursosDoConteudo.map((c) => c.courseTitulo).join(", ")}`
+                        : ""}
                     </p>
                   </div>
                 </div>
